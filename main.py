@@ -1,149 +1,50 @@
-import instaloader, sys
+import instaloader
 from getpass import getpass
-import requests, os
+from core.init import Print, getimg, info, downloadPost, clear_sc
 
 def banner():
     print("""
-'####:'##::: ##::'######::'########::::'###:::::::::::::'##:::'##:'####:'########:
-. ##:: ###:: ##:'##... ##:... ##..::::'## ##:::::::::::: ##::'##::. ##::... ##..::
-: ##:: ####: ##: ##:::..::::: ##:::::'##:. ##::::::::::: ##:'##:::: ##::::: ##::::
-: ##:: ## ## ##:. ######::::: ##::::'##:::. ##:'#######: #####::::: ##::::: ##::::
-: ##:: ##. ####::..... ##:::: ##:::: #########:........: ##. ##:::: ##::::: ##::::
-: ##:: ##:. ###:'##::: ##:::: ##:::: ##.... ##:::::::::: ##:. ##::: ##::::: ##::::
-'####: ##::. ##:. ######::::: ##:::: ##:::: ##:::::::::: ##::. ##:'####:::: ##::::
-....::..::::..:::......::::::..:::::..:::::..:::::::::::..::::..::....:::::..:::::
-            """)
-        
-def Print(message_type: str, message: str):
-  """
-  Prints a message with color and symbol based on its type.
-
-  Args:
-    message_type: The type of the message (warning, info, success, general).
-    message: The message string to be printed.
-  """
-  colors = {
-      "w": "\033[38;2;255;255;0m",
-      "i": "\033[38;2;0;0;255m",
-      "s": "\033[38;2;0;255;0m",
-      "n": "\033[0m",
-      "d": "\033[38;2;255;0;0m"
-}
-  symbols = {
-      "w": "[!] ",
-      "i": "[i] ",
-      "s": "[+] ",
-      "n": "[>] ",
-      "d": "[*]"
-  }
-
-  color = colors.get(message_type.lower(), colors["n"])
-  symbol = symbols.get(message_type.lower(), symbols["n"])
-
-  print(f"{color}{symbol}{message}\033[0m")
-
-def getimg(url, imgName: str, folder: str = 'Profile_pic'):
-    response = requests.get(url)
-
-    temp = os.path.join(os.getcwd(), f'temp\\{folder}')
-    if not os.path.exists(temp):
-        os.makedirs(temp)
-    destination = temp + f'\\{imgName}.jpg'
-
-
-    if response.status_code == 200:
-        with open(destination, 'wb') as file:
-            file.write(response.content)
-        # Print('s', 'Pic Download Successfull')
-    else:
-        Print('w', f"Failed to download image. Status code: {response.status_code}")
-
-def downloadPost(profile: object):
-    posts = profile.get_posts()
-    count = 1
-        
-    for i, post in enumerate(posts,1):
-        getimg(post.url,f'{profile.username}_{count}',f'Posts_{profile.full_name}')
-        count += 1
-        if count == 5:
-            break
-
-def info(Profile: object):
-
-    Print('i', f"{profile.full_name}'s info...\n")
-    
-    Print('i',f"Username: {profile.username}")
-    Print('i',f"Full name: {profile.full_name}")
-    Print('i',f"Biography: \n{profile.biography}")
-    if profile.external_url:
-        Print('i',f"Bio link: {profile.external_url}")
-    Print('i',f"# Posts: {profile.mediacount}")
-    Print('i',f"Followers: {profile.followers}")
-    Print('i',f"Following: {profile.followees}")
-    Print('i',f"Private account: {profile.is_private}")
-    # Print('i', f'Is Professional Account: {profile}')
-    Print('i',f"Verified account: {profile.is_verified}")
-    if profile.is_business_account:
-        Print('i',f"Is Business account: {profile.is_business_account}")
-        Print('i',f"Business Category: {profile.business_category_name}")
-        profile
-    Print('i',f"Story up: {profile.has_viewable_story}")
-    if login:
-        Print('i',"\nBlocking..............")
-        Print('i',f"Blocked by followers: {profile.blocked_by_viewer}")
-        Print('i',f"Blocked Viewer: {profile.has_blocked_viewer}")
-
-        Print('i',"\nRequests............")
-        Print('i',f"Viewer Request: {profile.requested_by_viewer}")
-        Print('i',f"Reqest: {profile.has_requested_viewer}")
-
-        count = 1
-        for follower in profile.get_followers():
-            print(f'{count}. {follower}')
-            count += 1
-            if count == 10:
-                break
-
-        count = 1
-        for followee in profile.get_followees:
-            print(f'{count}. {followee}')
-            count += 1
-            if count == 10:
-                break
-
-    
-
+\033[1;32m
+██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
+██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
+██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
+██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
+██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
+╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   
+            \033[0m""")
 
 
 
 login = False
 L = instaloader.Instaloader()
 
-# banner()
-Print('n', '1. Limited features')
-Print('n', '2. Advanced Features Require Login\n\n')
+clear_sc()
+banner()
+Print('w', '1. Login')
+Print('w', '2. Without Login...\n\n\n')
+opt = input()
 
-opt = input('> ')
-
-if opt == '2':
-    Print('i', 'To login enter the credtial')
-    username = input('\nUsername: ')
-    pwd = getpass('> ')
+if opt.strip()[0] == '1':
+    clear_sc()
+    banner()
+    Print('i', 'To login Enter the credentials Below\n')
+    user = input('Username: ')
+    pwd = getpass()
 
     try:
-        L.login(username,pwd)
+        print()
+        Print('i', 'Please Wait Loging you in...\n')
+
+        L.login(user,pwd)
         login = True
-        Print('s', 'Login Success')
+        Print('s', 'Login Sucess!')
     except:
-        Print('w','Login Failed!')
+        Print('d', 'Login Failed!')
+        print()
+        Print('w', 'Press Enter to Proceed without login...')
+        input()
 
-target_user = input("\033[1;32mTarget username: \33[0m")
-target_user = target_user.strip().lower()
-if len(target_user) <= 2:
-    Print('d', "Username can't be empty")
-    exit(1)
-
-profile = instaloader.Profile.from_username(L.context, target_user)
-getimg(profile.profile_pic_url, f'{profile.username}_DP')
-info(profile)
-downloadPost(profile)
+while True:
+    clear_sc()
+    banner()
+    
