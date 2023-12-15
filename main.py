@@ -1,17 +1,6 @@
 import instaloader
 from getpass import getpass
-from core.init import Print, getimg, info, downloadPost, clear_sc
-
-def banner():
-    print("""
-\033[1;32m
-██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
-██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
-██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
-██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
-██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
-╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   
-            \033[0m""")
+from core.init import Print, getimg, info, downloadPost, clear_sc, banner
 
 
 
@@ -47,4 +36,9 @@ if opt.strip()[0] == '1':
 while True:
     clear_sc()
     banner()
-    
+    tar_user = input('\n\nTarget username: ')
+    profile = instaloader.Profile.from_username(L.context, tar_user)
+    getimg(profile.profile_pic_url, f'{profile.userid}_{profile.username}_DP')
+    info(profile, login)
+    downloadPost(profile)
+    input('Press Enter to continue...')

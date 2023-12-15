@@ -1,5 +1,16 @@
 import requests, os, platform
 
+def banner():
+    print("""
+\033[1;32m
+██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
+██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
+██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
+██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
+██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
+╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   
+            \033[0m""")
+
 def clear_sc():
     sys_os = platform.system()
     if sys_os == 'Windows':
@@ -61,7 +72,7 @@ def downloadPost(profile: object):
         if count == 5:
             break
 
-def info(Profile: object):
+def info(profile: object, login: bool = False):
 
     Print('i', f"{profile.full_name}'s info...\n")
     
