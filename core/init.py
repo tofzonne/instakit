@@ -1,6 +1,7 @@
 import requests, os, platform
 
 def banner():
+    clear_sc()
     print("""
 \033[1;32m
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
@@ -46,35 +47,8 @@ def Print(message_type: str, message: str):
 
   print(f"{color}{symbol}{message}\033[0m")
 
-def getimg(url, imgName: str, folder: str = 'Profile_pic'):
-    response = requests.get(url)
-
-    temp = os.path.join(os.getcwd(), f'temp/{folder}')
-    if not os.path.exists(temp):
-        os.makedirs(temp)
-    destination = os.path.join(temp, f'{imgName}.jpg')
-
-
-    if response.status_code == 200:
-        with open(destination, 'wb') as file:
-            file.write(response.content)
-        # Print('s', 'Pic Download Successfull')
-    else:
-        Print('w', f"Failed to download image. Status code: {response.status_code}")
-
-def downloadPost(profile: object):
-    posts = profile.get_posts()
-    count = 1
-        
-    for i, post in enumerate(posts,1):
-        getimg(post.url,f'{profile.username}_{count}',f'Posts_{profile.full_name}')
-        count += 1
-        if count == 5:
-            break
-
 def info(profile: object, login: bool = False):
-
-    Print('i', f"{profile.full_name}'s info...\n")
+    Print('s', f'Result: scan for {profile.full_name} on instagram\n')
     
     Print('i',f"Username: {profile.username}")
     Print('i',f"Full name: {profile.full_name}")
@@ -90,8 +64,7 @@ def info(profile: object, login: bool = False):
     if profile.is_business_account:
         Print('i',f"Is Business account: {profile.is_business_account}")
         Print('i',f"Business Category: {profile.business_category_name}")
-        profile
-    Print('i',f"Story up: {profile.has_viewable_story}")
+    # Print('i',f"Story up: {profile.has_viewable_story}")
     if login:
         Print('i',"\nBlocking..............")
         Print('i',f"Blocked by followers: {profile.blocked_by_viewer}")
@@ -114,5 +87,69 @@ def info(profile: object, login: bool = False):
             count += 1
             if count == 10:
                 break
-
     
+    askSave = input('\nDo you want to save the info? (Y/N) ')
+    if askSave.strip().lower() == 'y':
+        saveInfo(profile)
+
+def saveInfo(profile: object):
+    ...
+    
+def download(profile: object):
+    user = f'{profile.username}_{profile.userid}_DP'
+    name = profile.full_name
+    # savedPosts = profile.get_saved_posts()
+
+    os.makedirs(os.path.join(os.getcwd(), 'temp', name), exist_ok=True)
+    dpdes = os.path.join(os.getcwd(), f'temp/{name}/{user}.jpg')
+    downloadImg(profile.profile_pic_url, dpdes)
+
+    download_post = False
+
+    print('\n`````````````````````````````````````````````````\n')
+    Print('s', 'Profile Picture Downloaded.')
+    print('Do you want to download latest 5 posts of {0}?'.format(name))
+    Print('w','Posts may include videos that might take time to download or crash the program')
+    opt = input('...............(Y/N): ')
+    if opt.strip().lower()[0] == 'y':
+        download_post = True
+        Print('i', f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts')
+
+    if download_post:
+        banner()
+        posts = profile.get_posts()
+        if posts:        
+            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
+            count = 1
+            for i in posts:
+                # print(dir(i))
+                # exit()
+                if i.is_video:
+                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.mp4')
+                    downloadImg(i.video_url, postdes)
+                else:
+                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.jpg')
+                    downloadImg(i.url, postdes)
+                count += 1
+                if count == 6:
+                    break
+        # if savedPosts:
+        #     os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved Posts'), exist_ok=True)
+        #     count = 1
+        #     for i in savedPosts:
+        #         savePostDes = os.path.join(os.getcwd(), f'temp/{name}/Saved Posts/Saved_{name}_{count}.jpg')
+        #         downloadImg(i.url, savedPosts)
+        #         count += 1
+        #         if count == 6:
+        #             break
+
+def downloadImg(url, destination):
+        # print('Getting ur:')
+        # print(url)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            with open(destination, 'wb') as file:
+                file.write(response.content)                
+        else:
+            Print('w', f"Failed to download image. Status code: {response.status_code}")
