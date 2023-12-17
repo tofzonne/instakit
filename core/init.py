@@ -1,4 +1,6 @@
-import requests, os, platform
+import requests
+import os
+import platform
 
 def banner():
     clear_sc()
@@ -24,7 +26,7 @@ def Print(message_type: str, message: str):
   Prints a message with color and symbol based on its type.
 
   Args:
-    message_type: The type of the message (warning, info, success, general).
+    message_type: The type of the message (w, i, s, n, d).
     message: The message string to be printed.
   """
   colors = {
@@ -39,54 +41,47 @@ def Print(message_type: str, message: str):
       "i": "[i] ",
       "s": "[+] ",
       "n": "[>] ",
-      "d": "[*]"
+      "d": "[*] "
   }
 
   color = colors.get(message_type.lower(), colors["n"])
   symbol = symbols.get(message_type.lower(), symbols["n"])
 
+  if message[0] == '\n':
+      message = message[0].replace('\n', '')
+      print(f'\n{color}{symbol}{message}\033[0m')
+
   print(f"{color}{symbol}{message}\033[0m")
 
 def info(profile: object, login: bool = False):
+    s = '\033[38;2;0;255;0m'
+    e = '\033[0m'
+    
     Print('s', f'Result: scan for {profile.full_name} on instagram\n')
     
-    Print('i',f"Username: {profile.username}")
-    Print('i',f"Full name: {profile.full_name}")
-    Print('i',f"Biography: \n{profile.biography}")
-    if profile.external_url:
-        Print('i',f"Bio link: {profile.external_url}")
-    Print('i',f"# Posts: {profile.mediacount}")
-    Print('i',f"Followers: {profile.followers}")
-    Print('i',f"Following: {profile.followees}")
-    Print('i',f"Private account: {profile.is_private}")
-    # Print('i', f'Is Professional Account: {profile}')
-    Print('i',f"Verified account: {profile.is_verified}")
+    print(f'Username: {s}{profile.username}{e}')
+    print(f'User ID: {s}{profile.userid}{e}')
+    print(f'Full Name: {s}{profile.full_name}{e}')
+    if profile.biography:
+        print(f'Bio: \n{s}{profile.biography}{e}')
+    if profile.external_url != None:
+        print(f'Bio Link: {s}{profile.external_url}{e}')
+    if profile.biography_mentions:
+        for i , j in enumerate(profile.biography_mentions, j):
+            print(f'Mention{j}: {s}{i.username}{e}')
+    print(f'Followers: {s}{profile.followers}{e}')
+    print(f'Following: {s}{profile.followees}{e}')
+    print(f'Posts: {s}{profile.mediacount}{e}')
+    try:
+        print(f'Story up: {s}{profile.has_viewable_story}{e}')
+    except ConnectionException as e:
+        print(f'has_public_story: {s}{profile.has_public_story}{e}')
+    print(f'Private Account: {s}{profile.is_private}{e}')
+    print(f'Verified: {s}{profile.is_verified}{e}')
     if profile.is_business_account:
-        Print('i',f"Is Business account: {profile.is_business_account}")
-        Print('i',f"Business Category: {profile.business_category_name}")
-    # Print('i',f"Story up: {profile.has_viewable_story}")
-    if login:
-        Print('i',"\nBlocking..............")
-        Print('i',f"Blocked by followers: {profile.blocked_by_viewer}")
-        Print('i',f"Blocked Viewer: {profile.has_blocked_viewer}")
-
-        Print('i',"\nRequests............")
-        Print('i',f"Viewer Request: {profile.requested_by_viewer}")
-        Print('i',f"Reqest: {profile.has_requested_viewer}")
-
-        count = 1
-        for follower in profile.get_followers():
-            print(f'{count}. {follower}')
-            count += 1
-            if count == 10:
-                break
-
-        count = 1
-        for followee in profile.get_followees:
-            print(f'{count}. {followee}')
-            count += 1
-            if count == 10:
-                break
+        print(f'Business Account: {s}{profile.is_business_account}{e}')
+        if profile.business_category_name:
+            print(f'Business Category: {s}{profile.business_category_name}{e}')
     
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
@@ -102,7 +97,7 @@ def download(profile: object):
 
     os.makedirs(os.path.join(os.getcwd(), 'temp', name), exist_ok=True)
     dpdes = os.path.join(os.getcwd(), f'temp/{name}/{user}.jpg')
-    downloadImg(profile.profile_pic_url, dpdes)
+    getFile(profile.profile_pic_url, dpdes)
 
     download_post = False
 
@@ -117,6 +112,8 @@ def download(profile: object):
 
     if download_post:
         banner()
+        print()
+        Print('i', 'Downloading posts...')
         posts = profile.get_posts()
         if posts:        
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
@@ -126,10 +123,10 @@ def download(profile: object):
                 # exit()
                 if i.is_video:
                     postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.mp4')
-                    downloadImg(i.video_url, postdes)
+                    getFile(i.video_url, postdes)
                 else:
                     postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.jpg')
-                    downloadImg(i.url, postdes)
+                    getFile(i.url, postdes)
                 count += 1
                 if count == 6:
                     break
@@ -138,12 +135,14 @@ def download(profile: object):
         #     count = 1
         #     for i in savedPosts:
         #         savePostDes = os.path.join(os.getcwd(), f'temp/{name}/Saved Posts/Saved_{name}_{count}.jpg')
-        #         downloadImg(i.url, savedPosts)
+        #         getFile(i.url, savedPosts)
         #         count += 1
         #         if count == 6:
         #             break
+        Print('s', f'{i} Posts Downloaded...')
+        input('Press Enter to continue...')
 
-def downloadImg(url, destination):
+def getFile(url, destination):
         # print('Getting ur:')
         # print(url)
         response = requests.get(url)
