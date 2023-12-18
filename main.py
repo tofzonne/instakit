@@ -1,6 +1,6 @@
 import instaloader
 from getpass import getpass
-from core.init import Print, info, clear_sc, banner, download, saveInfo
+from core.init import Print, info, clear_sc, banner, download
 
 
 
@@ -10,7 +10,7 @@ L = instaloader.Instaloader()
 banner()
 Print('w', '1. Login')
 Print('w', '2. Without Login...\n\n\n')
-opt = input()
+opt = input('/> ')
 
 if opt.strip()[0] == '1':
     banner()
@@ -33,10 +33,10 @@ if opt.strip()[0] == '1':
 
 while True:
     banner()
-    tar_user = input('\n\nTarget username: ')
+    tar_user = input('\nTarget username: ')
     banner()
     Print('w', f'Starting Scan on {tar_user}')
     print('`````````````````````````````````````````````````\n')
     profile = instaloader.Profile.from_username(L.context, tar_user)
     info(profile, login)
-    download(profile)
+    # download(profile)

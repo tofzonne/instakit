@@ -1,6 +1,8 @@
 import requests
 import os
 import platform
+from instaloader.exceptions import ConnectionException
+from core.profile import UserProfile
 
 def banner():
     clear_sc()
@@ -56,32 +58,33 @@ def Print(message_type: str, message: str):
 def info(profile: object, login: bool = False):
     s = '\033[38;2;0;255;0m'
     e = '\033[0m'
+    meta = profile._metadata
+    data = UserProfile(meta)
     
-    Print('s', f'Result: scan for {profile.full_name} on instagram\n')
-    
-    print(f'Username: {s}{profile.username}{e}')
-    print(f'User ID: {s}{profile.userid}{e}')
-    print(f'Full Name: {s}{profile.full_name}{e}')
-    if profile.biography:
-        print(f'Bio: \n{s}{profile.biography}{e}')
-    if profile.external_url != None:
-        print(f'Bio Link: {s}{profile.external_url}{e}')
-    if profile.biography_mentions:
-        for i , j in enumerate(profile.biography_mentions, j):
-            print(f'Mention{j}: {s}{i.username}{e}')
-    print(f'Followers: {s}{profile.followers}{e}')
-    print(f'Following: {s}{profile.followees}{e}')
-    print(f'Posts: {s}{profile.mediacount}{e}')
-    try:
-        print(f'Story up: {s}{profile.has_viewable_story}{e}')
-    except ConnectionException as e:
-        print(f'has_public_story: {s}{profile.has_public_story}{e}')
-    print(f'Private Account: {s}{profile.is_private}{e}')
-    print(f'Verified: {s}{profile.is_verified}{e}')
-    if profile.is_business_account:
-        print(f'Business Account: {s}{profile.is_business_account}{e}')
-        if profile.business_category_name:
-            print(f'Business Category: {s}{profile.business_category_name}{e}')
+    Print('s', f'Result: scan for {data.full_name} on instagram\n')
+
+    print(f'User Id: {s}{data.id}{e}')
+    print(f'Username: {s}{data.username}{e}')
+    print(f'Full Name: {s}{data.full_name}{e}')
+    print(f'Followers: {s}{data.followers}{e}')
+    print(f'Followees: {s}{data.followees}{e}')
+    if data.biography != None and data.external_url != None:
+        print(f'Bio: {s}{data.biography}\n{data.external_url}{e}')
+    elif data.biography != None:
+        print(f'Bio: {s}{data.biography}{e}')
+    print(f'Private: {s}{data.is_private}{e}')
+    print(f'Verified: {s}{data.is_verified}{e}')
+    print(f'Professional: {s}{data.is_professional_account}{e}')
+    if data.is_professional_account:
+        print(f'Category: {s}{data.category_name}{e}')
+    if data.is_business_account != None:
+        print(f'Business Account: {s}{data.is_business_account}{e}')
+        if data.business_category_name:
+            print(f'Business Category: {s}{data.business_category_name}{e}')
+        if data.business_email:
+            print(f'BussinessEmail: {s}{data.business_email}{e}')
+        if data.business_phone:
+            print(f'Business Phone #: {s}{data.business_phone}{e}')
     
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
@@ -117,8 +120,8 @@ def download(profile: object):
         posts = profile.get_posts()
         if posts:        
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
-            count = 1
-            for i in posts:
+            
+            for count, i in enumerate(posts,1):
                 # print(dir(i))
                 # exit()
                 if i.is_video:
@@ -127,8 +130,7 @@ def download(profile: object):
                 else:
                     postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.jpg')
                     getFile(i.url, postdes)
-                count += 1
-                if count == 6:
+                if count == 5:
                     break
         # if savedPosts:
         #     os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved Posts'), exist_ok=True)
@@ -139,7 +141,7 @@ def download(profile: object):
         #         count += 1
         #         if count == 6:
         #             break
-        Print('s', f'{i} Posts Downloaded...')
+        Print('s', f'{count} Posts Downloaded...')
         input('Press Enter to continue...')
 
 def getFile(url, destination):

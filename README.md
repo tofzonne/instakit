@@ -1,5 +1,5 @@
 # Instakit
-Instakit is a tool used to extract information from other people's/yourself Instagram accounts without logging in/blocking
+Instakit is a tool used to extract information from other people's/yourself Instagram accounts without logging in/blocking.
 
 # Results
 * Username
@@ -21,11 +21,12 @@ Instakit is a tool used to extract information from other people's/yourself Inst
 * Verified
 * Post
 * And many more
-* Downloads **Profile Pic** alongwith **five recent posts** of Target username. *if public other wise **login required***
+* Downloads **Profile Pic** alongwith **five recent posts** of Target username. *if public otherwise **login required***
 # Tested on
-Windows & Termux.
+**Windows** & **Termux.**
 # Requirements
 - Python
+- Git
 - Instaloader
 # Installation
 ```
@@ -41,8 +42,6 @@ git clone https://github.com/tofzonne/instakit.git
 ```
 cd instakit
 ```
-`Requirements.txt` file not available yet*<br>
-install `instalodader` using `pip`
 ```
 pip install -r requirements.txt
 ```
