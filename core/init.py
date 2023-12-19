@@ -6,8 +6,8 @@ from core.profile import UserProfile
 
 def banner():
     clear_sc()
-    print("""
-\033[1;32m
+    print(f"""\033[92m
+
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
@@ -68,22 +68,22 @@ def info(profile: object, login: bool = False):
     print(f'Full Name: {s}{data.full_name}{e}')
     print(f'Followers: {s}{data.followers}{e}')
     print(f'Followees: {s}{data.followees}{e}')
-    if data.biography != None and data.external_url != None:
-        print(f'Bio: {s}{data.biography}\n{data.external_url}{e}')
-    elif data.biography != None:
-        print(f'Bio: {s}{data.biography}{e}')
+    if len(data.biography) > 2 and data.external_url != None:
+        print(f'Bio: \n{s}{data.biography}\n{data.external_url}{e}')
+    elif len(data.biography):
+        print(f'Bio: \n{s}{data.biography}{e}')
     print(f'Private: {s}{data.is_private}{e}')
     print(f'Verified: {s}{data.is_verified}{e}')
     print(f'Professional: {s}{data.is_professional_account}{e}')
-    if data.is_professional_account:
+    if data.category_name != None:
         print(f'Category: {s}{data.category_name}{e}')
-    if data.is_business_account != None:
+    if data.is_business_account:
         print(f'Business Account: {s}{data.is_business_account}{e}')
-        if data.business_category_name:
+        if data.business_category_name != None:
             print(f'Business Category: {s}{data.business_category_name}{e}')
-        if data.business_email:
+        if data.business_email != None:
             print(f'BussinessEmail: {s}{data.business_email}{e}')
-        if data.business_phone:
+        if data.business_phone != None:
             print(f'Business Phone #: {s}{data.business_phone}{e}')
     
     askSave = input('\nDo you want to save the info? (Y/N) ')
@@ -106,12 +106,17 @@ def download(profile: object):
 
     print('\n`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
-    print('Do you want to download latest 5 posts of {0}?'.format(name))
-    Print('w','Posts may include videos that might take time to download or crash the program')
-    opt = input('...............(Y/N): ')
-    if opt.strip().lower()[0] == 'y':
-        download_post = True
-        Print('i', f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts')
+    if not profile.is_private:
+        print('Do you want to download latest 5 posts of {0}?'.format(name))
+        Print('w','Posts may include videos that might take time to download or crash the program')
+        opt = input('...............(Y/N): ')
+        if opt.strip().lower()[0] == 'y':
+            download_post = True
+            Print('i', f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts')
+    else:
+        u = profile.get_posts().count
+        Print("w", f"\n{profile.username} has {u} can't download posts because it's private.")
+        input('Press Enter to continue...')
 
     if download_post:
         banner()
@@ -125,10 +130,10 @@ def download(profile: object):
                 # print(dir(i))
                 # exit()
                 if i.is_video:
-                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.mp4')
+                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.mp4')
                     getFile(i.video_url, postdes)
                 else:
-                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{name}_{count}.jpg')
+                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.jpg')
                     getFile(i.url, postdes)
                 if count == 5:
                     break
@@ -141,7 +146,9 @@ def download(profile: object):
         #         count += 1
         #         if count == 6:
         #             break
-        Print('s', f'{count} Posts Downloaded...')
+            Print('s', f'{count} Posts Downloaded...')
+        else:
+            Print('w', f'No posts found for {profile.username}.')
         input('Press Enter to continue...')
 
 def getFile(url, destination):

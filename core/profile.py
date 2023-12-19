@@ -65,7 +65,7 @@ class UserProfile:
         return self.data('business_email')
     @property
     def business_phone(self) -> str:
-        return self.data('business_phone')
+        return self.data('business_phone_number')
     @property
     def business_category_name(self) -> str:
         return self.data('business_category_name')

@@ -10,7 +10,7 @@ L = instaloader.Instaloader()
 banner()
 Print('w', '1. Login')
 Print('w', '2. Without Login...\n\n\n')
-opt = input('/> ')
+opt = input('....../> ')
 
 if opt.strip()[0] == '1':
     banner()
@@ -39,4 +39,4 @@ while True:
     print('`````````````````````````````````````````````````\n')
     profile = instaloader.Profile.from_username(L.context, tar_user)
     info(profile, login)
-    # download(profile)
+    download(profile)
