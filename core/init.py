@@ -3,6 +3,10 @@ import os
 import platform
 from instaloader.exceptions import ConnectionException
 from core.profile import UserProfile
+from instaloader.instaloadercontext import InstaloaderContext
+from datetime import datetime
+
+login = InstaloaderContext.is_logged_in
 
 def banner():
     clear_sc()
@@ -55,36 +59,73 @@ def Print(message_type: str, message: str):
 
   print(f"{color}{symbol}{message}\033[0m")
 
+def log(message: str):
+    os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
+    flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
+    with open(flname, 'a') as f:
+        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"user: {message}, {time}\n")
+
 def info(profile: object, login: bool = False):
     s = '\033[38;2;0;255;0m'
     e = '\033[0m'
     meta = profile._metadata
     data = UserProfile(meta)
+    log(data.username)
     
     Print('s', f'Result: scan for {data.full_name} on instagram\n')
 
     print(f'User Id: {s}{data.id}{e}')
     print(f'Username: {s}{data.username}{e}')
     print(f'Full Name: {s}{data.full_name}{e}')
+
+    # if data.pronouns is not None:
+    #     print(f'Pronouns:{s}', end=' ')
+    #     for i in data.pronouns:
+    #         print(i, e, end=', ')
+    if data.is_joined_recently:
+        print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
     print(f'Followers: {s}{data.followers}{e}')
-    print(f'Followees: {s}{data.followees}{e}')
-    if len(data.biography) > 2 and data.external_url != None:
+    print(f'Following: {s}{data.followees}{e}')
+    if len(data.biography) > 2 and data.external_url is not None:
         print(f'Bio: \n{s}{data.biography}\n{data.external_url}{e}')
     elif len(data.biography):
         print(f'Bio: \n{s}{data.biography}{e}')
+    print(f'Total Media: {s}{profile.get_posts().count}{e}')
     print(f'Private: {s}{data.is_private}{e}')
     print(f'Verified: {s}{data.is_verified}{e}')
     print(f'Professional: {s}{data.is_professional_account}{e}')
-    if data.category_name != None:
+    if data.category_name is not None:
         print(f'Category: {s}{data.category_name}{e}')
     if data.is_business_account:
         print(f'Business Account: {s}{data.is_business_account}{e}')
-        if data.business_category_name != None:
+        if data.business_category_name is not None:
             print(f'Business Category: {s}{data.business_category_name}{e}')
-        if data.business_email != None:
+        if data.business_email is not None:
             print(f'BussinessEmail: {s}{data.business_email}{e}')
-        if data.business_phone != None:
+        if data.business_phone is not None:
             print(f'Business Phone #: {s}{data.business_phone}{e}')
+    if data.is_supervision_enabled:
+        print(f'Supervision Enabled: {s}{data.is_supervision_enabled}{e}')
+    if data.is_supervised_user:
+        print(f'Supervisied by someone: {s}{data.is_supervised_user}{e}')
+    if login:
+        if data.is_supervised_by_viewer:
+            print(f'You\'re Supervising {s}{data.full_name}{e}.')
+        if data.is_guardian_of_viewer:
+            print(f'You\'re being Supervisied by {s}{data.full_name}{e}')
+        if data.blocked_by_viewer:
+            print(f'You\'ve blocked {s}{data.full_name}{e}.')
+        if data.restricted_by_viewer:
+            print(f'You\'ve Restricted {s}{data.full_name}{e}.')
+        
+    if data.has_guides:
+        print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
+
+    if login:
+        if data.mutual_followed_by is not None:
+            print(f'lol{data.full_name}')
+    
     
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
@@ -123,6 +164,7 @@ def download(profile: object):
         print()
         Print('i', 'Downloading posts...')
         posts = profile.get_posts()
+        print(dir(posts))
         if posts:        
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
             

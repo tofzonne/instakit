@@ -1,4 +1,6 @@
+# folders/
 temp/
+logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -18,14 +20,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-
-
 # pyenv
 .python-version
 
@@ -43,3 +37,5 @@ ENV/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
+
+test.py
