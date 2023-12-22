@@ -17,7 +17,7 @@ def banner():
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
 ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
-╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   
+╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝
             \033[0m""")
 
 def clear_sc():
@@ -79,10 +79,13 @@ def info(profile: object, login: bool = False):
     print(f'Username: {s}{data.username}{e}')
     print(f'Full Name: {s}{data.full_name}{e}')
 
-    # if data.pronouns is not None:
-    #     print(f'Pronouns:{s}', end=' ')
-    #     for i in data.pronouns:
-    #         print(i, e, end=', ')
+    pronoun = data.pronouns
+    if not len(pronoun) == 0:
+        print(f'Pronouns: {s}', end='')
+        for i in pronoun:
+            print(i.title(), end=', ')
+        print(e)
+   
     if data.is_joined_recently:
         print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
     print(f'Followers: {s}{data.followers}{e}')
@@ -114,6 +117,8 @@ def info(profile: object, login: bool = False):
             print(f'You\'re Supervising {s}{data.full_name}{e}.')
         if data.is_guardian_of_viewer:
             print(f'You\'re being Supervisied by {s}{data.full_name}{e}')
+        if data.guardian_id is not None:
+            print(f'Guardian Id: {s}{data.guardian_id}{e}')
         if data.blocked_by_viewer:
             print(f'You\'ve blocked {s}{data.full_name}{e}.')
         if data.restricted_by_viewer:
@@ -122,9 +127,11 @@ def info(profile: object, login: bool = False):
     if data.has_guides:
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
 
+
     if login:
         if data.mutual_followed_by is not None:
             print(f'lol{data.full_name}')
+        # for profile:
     
     
     askSave = input('\nDo you want to save the info? (Y/N) ')
@@ -136,7 +143,7 @@ def saveInfo(profile: object):
     
 def download(profile: object):
     user = f'{profile.username}_{profile.userid}_DP'
-    name = profile.full_name
+    name = f'{profile.full_name}_{profile.userid}'
     # savedPosts = profile.get_saved_posts()
 
     os.makedirs(os.path.join(os.getcwd(), 'temp', name), exist_ok=True)
@@ -147,24 +154,25 @@ def download(profile: object):
 
     print('\n`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
-    if not profile.is_private:
-        print('Do you want to download latest 5 posts of {0}?'.format(name))
+    if profile.is_private:
+        u = profile.get_posts().count
+        Print('w', '\n{0} has {1} posts.'.format(profile.username, u))
+        Print('d', 'can\'t download posts of private accounts.')
+        input('Press Enter to continue...')
+    else:
+        print('Do you want to download latest 5 posts of {0}?'.format(profile.full_name))
         Print('w','Posts may include videos that might take time to download or crash the program')
         opt = input('...............(Y/N): ')
         if opt.strip().lower()[0] == 'y':
             download_post = True
             Print('i', f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts')
-    else:
-        u = profile.get_posts().count
-        Print("w", f"\n{profile.username} has {u} can't download posts because it's private.")
-        input('Press Enter to continue...')
 
     if download_post:
         banner()
         print()
         Print('i', 'Downloading posts...')
         posts = profile.get_posts()
-        print(dir(posts))
+        # print(dir(posts))
         if posts:        
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
             
@@ -191,6 +199,7 @@ def download(profile: object):
             Print('s', f'{count} Posts Downloaded...')
         else:
             Print('w', f'No posts found for {profile.username}.')
+            input('Press Enter to continue...')
         input('Press Enter to continue...')
 
 def getFile(url, destination):

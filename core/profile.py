@@ -1,6 +1,9 @@
 
 
 class UserProfile:
+    """
+    Takes '_metadata' from instaloader Profile and returns a UserProfile object.
+    """
     def __init__(self, data):
         self.data = data
     @property
@@ -59,7 +62,7 @@ class UserProfile:
         return self.data('is_joined_recently')
     @property
     def guardian_id(self) -> int:
-        return int(self.data('guardian_id'))
+        return self.data('guardian_id')
     @property
     def business_email(self) -> str:
         return self.data('business_email')
@@ -81,3 +84,6 @@ class UserProfile:
     @property
     def pronouns(self) -> list:
         return self.data('pronouns')
+    
+    # get_followers
+    # get_followees
