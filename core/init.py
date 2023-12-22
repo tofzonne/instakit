@@ -1,16 +1,18 @@
-import requests
 import os
 import platform
-from instaloader.exceptions import ConnectionException
-from core.profile import UserProfile
-from instaloader.instaloadercontext import InstaloaderContext
 from datetime import datetime
+
+import requests
+from instaloader.instaloadercontext import InstaloaderContext
+
+from core.profile import UserProfile
 
 login = InstaloaderContext.is_logged_in
 
+
 def banner():
     clear_sc()
-    print(f"""\033[92m
+    print("""\033[92m
 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
@@ -18,7 +20,8 @@ def banner():
 ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
 ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝
-            \033[0m""")
+                        \033[0m""")
+
 
 def clear_sc():
     sys_os = platform.system()
@@ -27,37 +30,33 @@ def clear_sc():
     else:
         os.system('clear')
 
+
 def Print(message_type: str, message: str):
-  """
-  Prints a message with color and symbol based on its type.
+    """
+    Prints a message with color and symbol based on its type.
 
-  Args:
-    message_type: The type of the message (w, i, s, n, d).
-    message: The message string to be printed.
-  """
-  colors = {
-      "w": "\033[1;33m",
-      "i": "\033[1;34m",
-      "s": "\033[38;2;0;255;0m",
-      "n": "\033[0m",
-      "d": "\033[38;2;255;0;0m"
-}
-  symbols = {
-      "w": "[!] ",
-      "i": "[i] ",
-      "s": "[+] ",
-      "n": "[>] ",
-      "d": "[*] "
-  }
+    Args:
+        message_type: The type of the message (w, i, s, n, d).
+        message: The message string to be printed.
+    """
+    colors = {
+            "w": "\033[1;33m",
+            "i": "\033[1;34m",
+            "s": "\033[38;2;0;255;0m",
+            "n": "\033[0m",
+            "d": "\033[38;2;255;0;0m"
+    }
+    symbols = {"w": "[!] ", "i": "[i] ", "s": "[+] ", "n": "[>] ", "d": "[*] "}
 
-  color = colors.get(message_type.lower(), colors["n"])
-  symbol = symbols.get(message_type.lower(), symbols["n"])
+    color = colors.get(message_type.lower(), colors["n"])
+    symbol = symbols.get(message_type.lower(), symbols["n"])
 
-  if message[0] == '\n':
-      message = message[0].replace('\n', '')
-      print(f'\n{color}{symbol}{message}\033[0m')
+    if message[0] == '\n':
+        message = message[0].replace('\n', '')
+        print(f'\n{color}{symbol}{message}\033[0m')
 
-  print(f"{color}{symbol}{message}\033[0m")
+    print(f"{color}{symbol}{message}\033[0m")
+
 
 def log(message: str):
     os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
@@ -66,13 +65,14 @@ def log(message: str):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         f.write(f"user: {message}, {time}\n")
 
+
 def info(profile: object, login: bool = False):
     s = '\033[38;2;0;255;0m'
     e = '\033[0m'
     meta = profile._metadata
     data = UserProfile(meta)
     log(data.username)
-    
+
     Print('s', f'Result: scan for {data.full_name} on instagram\n')
 
     print(f'User Id: {s}{data.id}{e}')
@@ -80,12 +80,12 @@ def info(profile: object, login: bool = False):
     print(f'Full Name: {s}{data.full_name}{e}')
 
     pronoun = data.pronouns
-    if not len(pronoun) == 0:
+    if len(pronoun) != 0:
         print(f'Pronouns: {s}', end='')
         for i in pronoun:
             print(i.title(), end=', ')
         print(e)
-   
+
     if data.is_joined_recently:
         print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
     print(f'Followers: {s}{data.followers}{e}')
@@ -123,24 +123,29 @@ def info(profile: object, login: bool = False):
             print(f'You\'ve blocked {s}{data.full_name}{e}.')
         if data.restricted_by_viewer:
             print(f'You\'ve Restricted {s}{data.full_name}{e}.')
-        
+
     if data.has_guides:
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
 
-
-    if login:
-        if data.mutual_followed_by is not None:
-            print(f'lol{data.full_name}')
+    if login and data.mutual_followed_by is not None:
+        print(f'lol{data.full_name}')
         # for profile:
-    
-    
+
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
 
+
 def saveInfo(profile: object):
-    ...
-    
+    name = f'{profile.full_name}_{profile.userid}'
+    os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved'), exist_ok=True)
+    flname = os.path.join(os.getcwd(), "temp", name, "Saved",
+                                                f"{profile.username}.txt")
+    with open(flname, 'w') as f:
+        f.write('This function is in development\nPlease wait till it finishes')
+        f.write(f'User Id: {profile.userid}\n')
+
+
 def download(profile: object):
     user = f'{profile.username}_{profile.userid}_DP'
     name = f'{profile.full_name}_{profile.userid}'
@@ -156,16 +161,23 @@ def download(profile: object):
     Print('s', 'Profile Picture Downloaded.')
     if profile.is_private:
         u = profile.get_posts().count
-        Print('w', '\n{0} has {1} posts.'.format(profile.username, u))
-        Print('d', 'can\'t download posts of private accounts.')
+        Print('w', '{0} has {1} posts.\n'.format(profile.username, u))
+        Print('d', 'Can\'t download posts of private accounts.')
         input('Press Enter to continue...')
     else:
-        print('Do you want to download latest 5 posts of {0}?'.format(profile.full_name))
-        Print('w','Posts may include videos that might take time to download or crash the program')
+        print('Do you want to download latest 5 posts of {0}?'.format(
+                profile.full_name))
+        Print(
+                'w',
+                'Posts may include videos that might take time to download or crash the program'
+        )
         opt = input('...............(Y/N): ')
         if opt.strip().lower()[0] == 'y':
             download_post = True
-            Print('i', f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts')
+            Print(
+                    'i',
+                    f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts'
+            )
 
     if download_post:
         banner()
@@ -173,17 +185,20 @@ def download(profile: object):
         Print('i', 'Downloading posts...')
         posts = profile.get_posts()
         # print(dir(posts))
-        if posts:        
-            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok=True)
-            
-            for count, i in enumerate(posts,1):
+        if posts:
+            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'),
+                                    exist_ok=True)
+
+            for count, i in enumerate(posts, 1):
                 # print(dir(i))
                 # exit()
                 if i.is_video:
-                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.mp4')
+                    postdes = os.path.join(
+                            os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.mp4')
                     getFile(i.video_url, postdes)
                 else:
-                    postdes = os.path.join(os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.jpg')
+                    postdes = os.path.join(
+                            os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.jpg')
                     getFile(i.url, postdes)
                 if count == 5:
                     break
@@ -202,13 +217,15 @@ def download(profile: object):
             input('Press Enter to continue...')
         input('Press Enter to continue...')
 
-def getFile(url, destination):
-        # print('Getting ur:')
-        # print(url)
-        response = requests.get(url)
 
-        if response.status_code == 200:
-            with open(destination, 'wb') as file:
-                file.write(response.content)                
-        else:
-            Print('w', f"Failed to download image. Status code: {response.status_code}")
+def getFile(url, destination):
+    # print('Getting ur:')
+    # print(url)
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        with open(destination, 'wb') as file:
+            file.write(response.content)
+    else:
+        Print('w',
+                    f"Failed to download image. Status code: {response.status_code}")

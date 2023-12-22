@@ -2,6 +2,12 @@
 temp/
 logs/
 
+# Replit
+# replit
+.local/
+*.lock
+*.toml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

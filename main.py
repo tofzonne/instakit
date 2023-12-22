@@ -12,13 +12,16 @@ opt = input('....../> ')
 if opt.strip()[0] == '1':
     banner()
     Print('i', 'To login enter the credentials')
-    username = input('\nUsername: ')
-    try:
-        instaloader.Instaloader.interactive_login(username)
-        Print('s', 'Logged in successfully')
-    except:
-        banner()
-        Print('w', 'Invalid credentials')
+    while login:
+        username = input('\nUsername: ')
+        try:
+            instaloader.Instaloader.interactive_login(username)
+            Print('s', 'Logged in successfully')
+            login = True
+        except instaloader.exceptions.BadCredentialsException:
+            banner()
+            Print('w', 'Invalid credentials')
+            Print('w', 'Try again')
 
 while True:
     banner()

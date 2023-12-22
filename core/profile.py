@@ -85,5 +85,23 @@ class UserProfile:
     def pronouns(self) -> list:
         return self.data('pronouns')
     
-    # get_followers
-    # get_followees
+    
+def followers(profile: object):
+    """
+    Takes a profile object and returns a list of followers.
+    """
+    follower = {}
+    fobj = profile.get_followers()
+    for sr, i in enumerate(fobj, 1):
+        follower[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
+    return follower
+
+def following(profile: object):
+    """
+    Takes a profile object and returns a list of followees.
+    """
+    followee = {}
+    fobj = profile.get_followees()
+    for sr, i in enumerate(fobj, 1):
+        followee[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
+    return followee
