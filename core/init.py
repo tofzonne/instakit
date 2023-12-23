@@ -1,11 +1,14 @@
 import os
 import platform
+import sys
+import shutil
 from datetime import datetime
+import json
 
 import requests
 from instaloader.instaloadercontext import InstaloaderContext
 
-from core.profile import UserProfile
+from core.profile import UserProfile, followers, following
 
 login = InstaloaderContext.is_logged_in
 
@@ -73,7 +76,7 @@ def info(profile: object, login: bool = False):
     data = UserProfile(meta)
     log(data.username)
 
-    Print('s', f'Result: scan for {data.full_name} on instagram\n')
+    Print('s', f'Results: scan for {data.full_name} on instagram')
 
     print(f'User Id: {s}{data.id}{e}')
     print(f'Username: {s}{data.username}{e}')
@@ -88,18 +91,36 @@ def info(profile: object, login: bool = False):
 
     if data.is_joined_recently:
         print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
+
     print(f'Followers: {s}{data.followers}{e}')
     print(f'Following: {s}{data.followees}{e}')
+
     if len(data.biography) > 2 and data.external_url is not None:
         print(f'Bio: \n{s}{data.biography}\n{data.external_url}{e}')
-    elif len(data.biography):
+
+    elif len(data.biography) > 1:
         print(f'Bio: \n{s}{data.biography}{e}')
+    
+    if login and profile.followed_by_viewer:
+        print(f'You\'re following {s}{data.username}{e}.')
+
+    if login and profile.follows_viewer:
+        print(f'{s}{data.username}{e} follows you.')
+
+    if login and profile.has_requested_viewer:
+        print(f'{s}{data.username}{e} requested you.')
+
+    if login and profile.requested_by_viewer:
+        print(f'You\'re requesting {s}{data.username}{e}.')
+
     print(f'Total Media: {s}{profile.get_posts().count}{e}')
     print(f'Private: {s}{data.is_private}{e}')
     print(f'Verified: {s}{data.is_verified}{e}')
     print(f'Professional: {s}{data.is_professional_account}{e}')
+
     if data.category_name is not None:
         print(f'Category: {s}{data.category_name}{e}')
+
     if data.is_business_account:
         print(f'Business Account: {s}{data.is_business_account}{e}')
         if data.business_category_name is not None:
@@ -108,10 +129,13 @@ def info(profile: object, login: bool = False):
             print(f'BussinessEmail: {s}{data.business_email}{e}')
         if data.business_phone is not None:
             print(f'Business Phone #: {s}{data.business_phone}{e}')
+
     if data.is_supervision_enabled:
         print(f'Supervision Enabled: {s}{data.is_supervision_enabled}{e}')
+
     if data.is_supervised_user:
         print(f'Supervisied by someone: {s}{data.is_supervised_user}{e}')
+
     if login:
         if data.is_supervised_by_viewer:
             print(f'You\'re Supervising {s}{data.full_name}{e}.')
@@ -123,6 +147,8 @@ def info(profile: object, login: bool = False):
             print(f'You\'ve blocked {s}{data.full_name}{e}.')
         if data.restricted_by_viewer:
             print(f'You\'ve Restricted {s}{data.full_name}{e}.')
+        if profile.has_blocked_viewer:
+            print(f'{s}{data.full_name}{e} has blocked you.')
 
     if data.has_guides:
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
@@ -130,20 +156,45 @@ def info(profile: object, login: bool = False):
     if login and data.mutual_followed_by is not None:
         print(f'lol{data.full_name}')
         # for profile:
-
+        
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
+    else:
+        shutil.rmtree(os.path.join(os.getcwd(), 'temp', name, 'Saved'))
 
 
 def saveInfo(profile: object):
     name = f'{profile.full_name}_{profile.userid}'
+    meta = profile._metadata
+    data = UserProfile(meta)
+
     os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved'), exist_ok=True)
-    flname = os.path.join(os.getcwd(), "temp", name, "Saved",
-                                                f"{profile.username}.txt")
+    flname = os.path.join(os.getcwd(), "temp", name, "Saved", f"{profile.username}.txt")
+
     with open(flname, 'w') as f:
-        f.write('This function is in development\nPlease wait till it finishes')
+        f.write('This function is in development Please wait till it finishes\n')
         f.write(f'User Id: {profile.userid}\n')
+        f.write(f'Username: {profile.username}\n')
+        f.write(f'Full Name: {profile.full_name}\n')
+        f.write(f'Prnouns: {data.pronouns}\n')
+        f.write(f'Bio: {profile.biography}\n{profile.external_url}')
+        f.write(f'Join recently: {data.is_joined_recently}')
+    
+    if InstaloaderContext.is_logged_in:
+        rdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followers.txt")
+        sdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followings.txt")
+        follower = followers(profile)
+        followee = following(profile)
+        with open(rdes, 'w') as f:
+            json.dump(follower, f, indent=4)
+            Print('s', 'Followers Saved')
+        with open(sdes, 'w') as f:
+            json.dump(followee, f, indent=4)
+            Print('s', 'Followings Saved')
+
+    banner()
+    Print('s', f'Saved info for {profile.full_name} to temp/{name}/Saved/')
 
 
 def download(profile: object):
@@ -157,7 +208,7 @@ def download(profile: object):
 
     download_post = False
 
-    print('\n`````````````````````````````````````````````````\n')
+    print('`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
     if profile.is_private:
         u = profile.get_posts().count

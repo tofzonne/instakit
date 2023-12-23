@@ -27,7 +27,7 @@ while True:
     banner()
     tar_user = input('\nTarget username: ')
     banner()
-    Print('w', f'Starting Scan on {tar_user}')
+    Print('i', f'Starting Scan on {tar_user}')
     print('`````````````````````````````````````````````````\n')
     profile = instaloader.Profile.from_username(L.context, tar_user)
     info(profile, login)

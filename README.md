@@ -1,6 +1,8 @@
 # Instakit
 Instakit is a tool used to extract information from other people's/yourself Instagram accounts without logging in/blocking.
 
+[![Run on Repl.it](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/new/github/tofzonne/instakit)
+
 # Results
 * Username
 * ID

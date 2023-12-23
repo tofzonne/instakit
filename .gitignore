@@ -3,7 +3,6 @@ temp/
 logs/
 
 # Replit
-# replit
 .local/
 *.lock
 *.toml

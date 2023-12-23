@@ -86,9 +86,9 @@ class UserProfile:
         return self.data('pronouns')
     
     
-def followers(profile: object):
+def followers(profile: object) -> dict:
     """
-    Takes a profile object and returns a list of followers.
+    Takes a profile object and returns a dictionary of followers.
     """
     follower = {}
     fobj = profile.get_followers()
@@ -96,9 +96,9 @@ def followers(profile: object):
         follower[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
     return follower
 
-def following(profile: object):
+def following(profile: object) -> dict:
     """
-    Takes a profile object and returns a list of followees.
+    Takes a profile object and returns a dictionary of followees.
     """
     followee = {}
     fobj = profile.get_followees()
