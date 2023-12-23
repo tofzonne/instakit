@@ -41,6 +41,8 @@ venv.bak/
 # Distribution / packaging
 wheels/
 pip-wheel-metadata/
-share/python-wheels/
+
 
 test.py
+share/python-wheels/
+

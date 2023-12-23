@@ -29,6 +29,7 @@ Instakit is a tool used to extract information from other people's/yourself Inst
 # Requirements
 - Python
 - Git
+
 - Instaloader
 # Installation
 ```
@@ -46,7 +47,6 @@ cd instakit
 ```
 ```
 pip install -r requirements.txt
-```
 ```
 python main.py
 ```
