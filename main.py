@@ -1,79 +1,34 @@
-import instaloader, sys
-from getpass import getpass
-
-def banner():
-    print("""
-'####:'##::: ##::'######::'########::::'###:::::::::::::'##:::'##:'####:'########:
-. ##:: ###:: ##:'##... ##:... ##..::::'## ##:::::::::::: ##::'##::. ##::... ##..::
-: ##:: ####: ##: ##:::..::::: ##:::::'##:. ##::::::::::: ##:'##:::: ##::::: ##::::
-: ##:: ## ## ##:. ######::::: ##::::'##:::. ##:'#######: #####::::: ##::::: ##::::
-: ##:: ##. ####::..... ##:::: ##:::: #########:........: ##. ##:::: ##::::: ##::::
-: ##:: ##:. ###:'##::: ##:::: ##:::: ##.... ##:::::::::: ##:. ##::: ##::::: ##::::
-'####: ##::. ##:. ######::::: ##:::: ##:::: ##:::::::::: ##::. ##:'####:::: ##::::
-....::..::::..:::......::::::..:::::..:::::..:::::::::::..::::..::....:::::..:::::
-            """)
-        
-def Print(message_type: str, message: str):
-  """
-  Prints a message with color and symbol based on its type.
-
-  Args:
-    message_type: The type of the message (warning, info, success, general).
-    message: The message string to be printed.
-  """
-  colors = {
-      "w": "\033[38;2;255;255;0m",
-      "i": "\033[38;2;0;0;255m",
-      "s": "\033[38;2;0;255;0m",
-      "n": "\033[0m",
-      "d": "\033[38;2;255;0;0m"
-}
-  symbols = {
-      "w": "[!] ",
-      "i": "[i] ",
-      "s": "[+] ",
-      "n": "[>] ",
-      "d": "[*]"
-  }
-
-  color = colors.get(message_type.lower(), colors["n"])
-  symbol = symbols.get(message_type.lower(), symbols["n"])
-
-  print(f"{color}{symbol}{message}\033[0m")
-
-def info(username: str):
+import instaloader
+from core.init import Print, info, clear_sc, banner, download
 
 
-    profile = instaloader.Profile.from_username(L.context, username)
-
-
-    Print('i', f"{profile.full_name}'s info...\n")
-    print(f'Followers: {profile.followers}')
-
-
-
+login = False
 L = instaloader.Instaloader()
 
-# banner()
-Print('n', '1. Limited features')
-Print('n', '2. Advanced Features Require Login\n\n')
+banner()
+Print('w', '1. Login')
+Print('w', '2. Without Login...\n\n\n')
+opt = input('....../> ')
+if opt.strip()[0] == '1':
+    banner()
+    Print('i', 'To login enter the credentials')
+    while login:
+        username = input('\nUsername: ')
+        try:
+            instaloader.Instaloader.interactive_login(username)
+            Print('s', 'Logged in successfully')
+            login = True
+        except instaloader.exceptions.BadCredentialsException:
+            banner()
+            Print('w', 'Invalid credentials')
+            Print('w', 'Try again')
 
-opt = input('> ')
-
-if opt == '2':
-    Print('i', 'To login enter the credtial')
-    username = input('\nUsername: ')
-    pwd = getpass('> ')
-
-    try:
-        L.login(username,pwd)
-        Print('s', 'Login Success')
-    except:
-        Print('w','Login Failed!')
-
-target_user = input("\033[1;32mTarget username: \33[0m")
-if len(target_user) <= 2:
-    Print('d', "Username can't be empty")
-    exit(1)
-
-info(target_user)
+while True:
+    banner()
+    tar_user = input('\nTarget username: ')
+    banner()
+    Print('i', f'Starting Scan on {tar_user}')
+    print('`````````````````````````````````````````````````\n')
+    profile = instaloader.Profile.from_username(L.context, tar_user)
+    info(profile, login)
+    download(profile)

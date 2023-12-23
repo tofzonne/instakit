@@ -1,4 +1,11 @@
+# folders/
 temp/
+logs/
+
+# Replit
+.local/
+*.lock
+*.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -18,14 +25,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-
-
 # pyenv
 .python-version
 
@@ -42,4 +41,8 @@ ENV/
 # Distribution / packaging
 wheels/
 pip-wheel-metadata/
+
+
+test.py
 share/python-wheels/
+
