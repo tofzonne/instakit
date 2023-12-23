@@ -157,10 +157,10 @@ def info(profile: object, login: bool = False):
         
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
-        saveInfo(profile)
+        saveInfo(profile, login)
 
 
-def saveInfo(profile: object):
+def saveInfo(profile: object, login: bool = False):
     name = f'{profile.full_name}_{profile.userid}'
     meta = profile._metadata
     data = UserProfile(meta)
@@ -174,10 +174,10 @@ def saveInfo(profile: object):
         f.write(f'Username: {profile.username}\n')
         f.write(f'Full Name: {profile.full_name}\n')
         f.write(f'Prnouns: {data.pronouns}\n')
-        f.write(f'Bio: {profile.biography}\n{profile.external_url}')
+        f.write(f'Bio: {profile.biography}\n{profile.external_url}\n')
         f.write(f'Join recently: {data.is_joined_recently}')
     
-    if InstaloaderContext.is_logged_in:
+    if login:
         rdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followers.txt")
         sdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followings.txt")
         follower = followers(profile)
