@@ -1,7 +1,5 @@
 import os
 import platform
-import sys
-import shutil
 from datetime import datetime
 import json
 
@@ -160,8 +158,6 @@ def info(profile: object, login: bool = False):
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
-    else:
-        shutil.rmtree(os.path.join(os.getcwd(), 'temp', name, 'Saved'))
 
 
 def saveInfo(profile: object):
