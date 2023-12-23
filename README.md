@@ -48,6 +48,7 @@ cd instakit
 ```
 pip install -r requirements.txt
 ```
+```
 python main.py
 ```
 You're welcome 🤗.
