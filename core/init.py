@@ -152,122 +152,137 @@ def info(profile: object, login: bool = False):
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
 
     if login and data.mutual_followed_by is not None:
-        print(f'lol{data.full_name}')
-        # for profile:
-        
+        print(f'You\'ve mutual followers with {s}{data.full_name}{e}')
+        # for profile:]
+
+    if login:
+        ers = followers(profile)
+        ees = following(profile)
+        print('`````````````````````````````````````````````````\n')
+        print(f'Top ten Followers of {s}{data.username}{e}')
+        for x in range(1, 10):
+            print(f'{x}: ', ers[x]['username'], ers[x]['full_name'])
+
+        print('`````````````````````````````````````````````````\n')
+        print(f'Top ten Following of {s}{data.username}{e}')
+        for x in range(1, 10):
+            print(f'{x}: ', ees[x]['username'], ees[x]['full_name'])
+
+
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
-        saveInfo(profile)
+        saveInfo(profile, login)
 
 
-def saveInfo(profile: object):
-    name = f'{profile.full_name}_{profile.userid}'
+def saveInfo(profile: object, login: bool = False):
+    name = f'{profile.username}_{profile.userid}'
     meta = profile._metadata
     data = UserProfile(meta)
 
-    os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved'), exist_ok=True)
-    flname = os.path.join(os.getcwd(), "temp", name, "Saved", f"{profile.username}.txt")
+    os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'data'), exist_ok=True)
+    flname = os.path.join(os.getcwd(), "temp", name, "data", f"{profile.username}.txt")
 
-    with open(flname, 'w') as f:
+    with open(flname, 'w', encoding='utf-8') as f:
         f.write('This function is in development Please wait till it finishes\n')
         f.write(f'User Id: {profile.userid}\n')
         f.write(f'Username: {profile.username}\n')
         f.write(f'Full Name: {profile.full_name}\n')
         f.write(f'Prnouns: {data.pronouns}\n')
-        f.write(f'Bio: {profile.biography}\n{profile.external_url}')
+        f.write(f'Bio: {profile.biography}\n{profile.external_url}\n')
         f.write(f'Join recently: {data.is_joined_recently}')
     
-    if InstaloaderContext.is_logged_in:
-        rdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followers.txt")
-        sdes = os.path.join(os.getcwd(), "temp", name, "Saved", "followings.txt")
+    if login:
+        rdes = os.path.join(os.getcwd(), "temp", name, "data", "followers.txt")
+        sdes = os.path.join(os.getcwd(), "temp", name, "data", "followings.txt")
         follower = followers(profile)
         followee = following(profile)
         with open(rdes, 'w') as f:
             json.dump(follower, f, indent=4)
-            Print('s', 'Followers Saved')
+            Print('s', 'Followers data')
         with open(sdes, 'w') as f:
             json.dump(followee, f, indent=4)
-            Print('s', 'Followings Saved')
+            Print('s', 'Followings data')
 
     banner()
-    Print('s', f'Saved info for {profile.full_name} to temp/{name}/Saved/')
+    Print('s', f'Saved info for {profile.full_name} to temp/{name}/data/')
 
 
-def download(profile: object):
-    user = f'{profile.username}_{profile.userid}_DP'
-    name = f'{profile.full_name}_{profile.userid}'
-    # savedPosts = profile.get_saved_posts()
+def download(profile: object, login: bool = False):
+    """
+    Downloads profile picture and optionally the latest 5 posts from an Instagram profile.
+
+    Args:
+        profile: An instaloader.Profile object representing the target Instagram profile.
+        login: A boolean indicating whether to use a logged-in Instaloader session for private accounts.
+                Defaults to False.
+
+    Raises:
+        LoginRequiredExeption: If the profile is private and login is False.
+
+    """
+    name = f'{profile.username}_{profile.userid}'
+    dpUrl = profile.profile_pic_url
 
     os.makedirs(os.path.join(os.getcwd(), 'temp', name), exist_ok=True)
-    dpdes = os.path.join(os.getcwd(), f'temp/{name}/{user}.jpg')
-    getFile(profile.profile_pic_url, dpdes)
+    dpdes = os.path.join(os.getcwd(), f'temp/{name}/DP-{profile.username}.jpg')
+    getFile(dpUrl, dpdes)
 
     download_post = False
 
     print('`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
-    if profile.is_private:
+    if profile.is_private and not login:
         u = profile.get_posts().count
-        Print('w', '{0} has {1} posts.\n'.format(profile.username, u))
-        Print('d', 'Can\'t download posts of private accounts.')
+        Print('w', '{0} has {1} posts but its private.\n'.format(profile.username, u))
+        Print('d', 'Can\'t download posts of private accounts.\n')
         input('Press Enter to continue...')
     else:
         print('Do you want to download latest 5 posts of {0}?'.format(
-                profile.full_name))
-        Print(
-                'w',
-                'Posts may include videos that might take time to download or crash the program'
-        )
-        opt = input('...............(Y/N): ')
+                profile.username))
+        # Print('w','Posts may contain videos that may take a time to download. \n')
+        opt = input('\nDo you want to continue (Y/N): ')
+        
         if opt.strip().lower()[0] == 'y':
             download_post = True
-            Print(
-                    'i',
-                    f'Downloading Latest 5 posts of {profile.username}...\nFile path /temp/{profile.full_name}/Posts'
-            )
+            Print('i', f'Downloading Latest 5 posts of {profile.username}...')
+            Print('i', f'File path /temp/{name}/Posts')
 
     if download_post:
         banner()
         print()
-        Print('i', 'Downloading posts...')
         posts = profile.get_posts()
-        # print(dir(posts))
         if posts:
+            Print('i', 'Downloading posts...')
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'),
                                     exist_ok=True)
-
             for count, i in enumerate(posts, 1):
-                # print(dir(i))
-                # exit()
                 if i.is_video:
                     postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.mp4')
+                            os.getcwd(), f'temp/{name}/Posts/{count}-{i.pcaption}.mp4')
                     getFile(i.video_url, postdes)
                 else:
                     postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}_{i.pcaption}.jpg')
+                            os.getcwd(), f'temp/{name}/Posts/{count}-{i.pcaption}.jpg')
                     getFile(i.url, postdes)
                 if count == 5:
                     break
-        # if savedPosts:
-        #     os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Saved Posts'), exist_ok=True)
-        #     count = 1
-        #     for i in savedPosts:
-        #         savePostDes = os.path.join(os.getcwd(), f'temp/{name}/Saved Posts/Saved_{name}_{count}.jpg')
-        #         getFile(i.url, savedPosts)
-        #         count += 1
-        #         if count == 6:
-        #             break
-            Print('s', f'{count} Posts Downloaded...')
+                Print('s', f'{count}-{i.pcaption} Downloaded...')
         else:
             Print('w', f'No posts found for {profile.username}.')
-            input('Press Enter to continue...')
         input('Press Enter to continue...')
 
-
 def getFile(url, destination):
-    # print('Getting ur:')
-    # print(url)
+    """
+    Downloads a file from a given URL and saves it to the specified destination.
+
+    Args:
+        `url`: The URL of the file to download.
+        `destination`: The path to save the downloaded file to.
+
+    Raises:
+        `RuntimeError`: If the download fails with a non-200 status code.
+        
+    """
     response = requests.get(url)
 
     if response.status_code == 200:

@@ -31,4 +31,4 @@ while True:
     print('`````````````````````````````````````````````````\n')
     profile = instaloader.Profile.from_username(L.context, tar_user)
     info(profile, login)
-    download(profile)
+    download(profile, login)
