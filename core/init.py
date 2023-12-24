@@ -11,17 +11,21 @@ from core.profile import UserProfile, followers, following
 login = InstaloaderContext.is_logged_in
 
 
-def banner():
+def banner(count: int = 0): 
     clear_sc()
-    print("""\033[92m
-
+    time = datetime.now().strftime("%H:%M:%S")
+    if count == 0:
+        srno = ''
+    else:
+        srno = f'User Scanned: {count}'
+    print(f"""
+Time: {time}                            {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
 ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
-╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝
-                        \033[0m""")
+╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝\033[0m""")
 
 
 def clear_sc():
@@ -66,6 +70,13 @@ def log(message: str):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         f.write(f"user: {message}, {time}\n")
 
+def scanned():
+    flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
+    with open(flname, 'r') as f:
+        user =  f.readlines()
+        for s, i in enumerate(user,1):
+            print(s, i.replace("\n",""))
+    input('\nPress Enter to exit...')
 
 def info(profile: object, login: bool = False):
     s = '\033[38;2;0;255;0m'
@@ -184,13 +195,47 @@ def saveInfo(profile: object, login: bool = False):
     flname = os.path.join(os.getcwd(), "temp", name, "data", f"{profile.username}.txt")
 
     with open(flname, 'w', encoding='utf-8') as f:
-        f.write('This function is in development Please wait till it finishes\n')
+        time = datetime.now().strftime("%d-%m-%y %H:%M:%S")
+        if login:
+            f.write('You\'wre logged in\n')
+        f.write(f'Scan at {time}\n')
         f.write(f'User Id: {profile.userid}\n')
         f.write(f'Username: {profile.username}\n')
         f.write(f'Full Name: {profile.full_name}\n')
         f.write(f'Prnouns: {data.pronouns}\n')
-        f.write(f'Bio: {profile.biography}\n{profile.external_url}')
-        f.write(f'Join recently: {data.is_joined_recently}')
+        f.write(f'Bio: {profile.biography}\n{profile.external_url}\n')
+        f.write(f'Join recently: {data.is_joined_recently}\n')
+        f.write(f'Followers: {data.followers}\n')
+        f.write(f'Following: {data.followees}\n')
+        f.write(f'Total Media: {profile.get_posts().count}\n')
+        f.write(f'Private: {data.is_private}\n')
+        f.write(f'Verified: {data.is_verified}\n')
+        f.write(f'Professional: {data.is_professional_account}\n')
+        f.write(f'Category: {data.category_name}\n')
+        f.write(f'Business Account: {data.is_business_account}\n')
+        f.write(f'Business Category: {data.business_category_name}\n')
+        if login:
+            if profile.followed_by_viewer:
+                f.write(f'You\'re following {data.username}\n')
+            if profile.is_supervised_user:
+                f.write(f'{data.username} is Supervised by Some other user\n')
+            if profile.follows_viewer:
+                f.write(f'{data.username} follows you\n')
+            if profile.has_requested_viewer:
+                f.write(f'{data.username} requested you\n')
+            if profile.requested_by_viewer:
+                f.write(f'You\'re requesting {data.username}\n')
+            if profile.has_blocked_viewer:
+                f.write(f'{data.username} has blocked you\n')
+            if data.restricted_by_viewer:
+                f.write(f'You\'ve Restricted {data.username}\n')
+            if data.blocked_by_viewer:
+                f.write(f'You\'ve blocked {data.username}\n')
+            if data.is_supervised_by_viewer:
+                f.write(f'You\'re Supervising {data.username}\n')
+        f.write(f'{data.username} has Guides: {data.has_guides}\n')
+        f.write(f'Guardian Id: {data.guardian_id}\n')            
+
     
     if login:
         rdes = os.path.join(os.getcwd(), "temp", name, "data", "followers.txt")
@@ -241,7 +286,7 @@ def download(profile: object, login: bool = False):
         print('Do you want to download latest 5 posts of {0}?'.format(
                 profile.username))
         # Print('w','Posts may contain videos that may take a time to download. \n')
-        opt = input('\nDo you want to continue (Y/N): ')
+        opt = input('\nContinue (Y/N): ')
         
         if opt.strip().lower()[0] == 'y':
             download_post = True
@@ -252,10 +297,9 @@ def download(profile: object, login: bool = False):
         banner()
         print()
         posts = profile.get_posts()
-        if posts:
+        if posts.count > 0:
+            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok = True)
             Print('i', 'Downloading posts...')
-            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'),
-                                    exist_ok=True)
             for count, i in enumerate(posts, 1):
                 if i.is_video:
                     postdes = os.path.join(
@@ -270,6 +314,7 @@ def download(profile: object, login: bool = False):
                 Print('s', f'{count}-{i.pcaption} Downloaded...')
         else:
             Print('w', f'No posts found for {profile.username}.')
+
         input('Press Enter to continue...')
 
 def getFile(url, destination):
@@ -291,4 +336,4 @@ def getFile(url, destination):
             file.write(response.content)
     else:
         Print('w',
-                    f"Failed to download image. Status code: {response.status_code}")
+                    f"Failed to download file. Status code: {response.status_code}")
