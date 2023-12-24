@@ -175,7 +175,7 @@ def info(profile: object, login: bool = False):
         saveInfo(profile, login)
 
 
-def saveInfo(profile: object, login: bool = False, login: bool = False):
+def saveInfo(profile: object, login: bool = False):
     name = f'{profile.username}_{profile.userid}'
     meta = profile._metadata
     data = UserProfile(meta)
