@@ -16,8 +16,12 @@ ilogin = context.is_logged_in
 def banner(): 
     clear_sc()
     time = datetime.now().strftime("%H:%M:%S")
-    with open('core\\logs\\info.log', 'r') as f:
-        logs = f.readlines()
+    os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
+    try:
+        with open('core\\logs\\info.log', 'r') as f:
+            logs = f.readlines()
+    except FileNotFoundError:
+        logs = []
     today = datetime.now().strftime("%d-%m-%y")
     count = len(logs)
     tcount = 0
@@ -84,8 +88,15 @@ def log(message: str):
 
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
-    with open(flname, 'r') as f:
-        user =  f.readlines()
+    try:
+        with open(flname, 'r') as f:
+            user =  f.readlines()
+    except FileNotFoundError:
+        Print('w', 'You have not scanned any users yet')
+        Print('i', 'Press enter to continue...\n')
+        input()
+        user = []
+        return None
     banner()
 
     Print('i', '\na: View all scanned users')
