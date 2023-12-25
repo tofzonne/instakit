@@ -2,24 +2,36 @@ import os
 import platform
 from datetime import datetime
 import json
+from time import sleep
 
 import requests
 from instaloader.instaloadercontext import InstaloaderContext
 
-from core.profile import UserProfile, followers, following
+from core.profile import UserProfile, followers, following, all, unique_users
 
-login = InstaloaderContext.is_logged_in
+context = InstaloaderContext()
+ilogin = context.is_logged_in
 
 
-def banner(count: int = 0): 
+def banner(): 
     clear_sc()
     time = datetime.now().strftime("%H:%M:%S")
-    if count == 0:
+    with open('core\\logs\\info.log', 'r') as f:
+        logs = f.readlines()
+    today = datetime.now().strftime("%d-%m-%y")
+    count = len(logs)
+    tcount = 0
+    for i in logs:
+        raw = i.split(',')[1].strip()
+        Time = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
+        if today == Time.strftime("%d-%m-%y"):
+            tcount += 1
+    if tcount == 0:
         srno = ''
     else:
-        srno = f'User Scanned: {count}'
+        srno = f'Scanned today: {tcount}/{count} users'
     print(f"""
-Time: {time}                            {srno}\033[92m 
+Time: {time}                    {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
@@ -56,11 +68,11 @@ def Print(message_type: str, message: str):
     color = colors.get(message_type.lower(), colors["n"])
     symbol = symbols.get(message_type.lower(), symbols["n"])
 
-    if message[0] == '\n':
-        message = message[0].replace('\n', '')
+    if '\n' in message[0]:
+        message = message.replace('\n', '')
         print(f'\n{color}{symbol}{message}\033[0m')
-
-    print(f"{color}{symbol}{message}\033[0m")
+    else:
+        print(f"{color}{symbol}{message}\033[0m")
 
 
 def log(message: str):
@@ -68,17 +80,28 @@ def log(message: str):
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     with open(flname, 'a') as f:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        f.write(f"user: {message}, {time}\n")
+        f.write(f"{message}, {time}\n")
 
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     with open(flname, 'r') as f:
         user =  f.readlines()
-        for s, i in enumerate(user,1):
-            print(s, i.replace("\n",""))
-    input('\nPress Enter to exit...')
+    banner()
 
-def info(profile: object, login: bool = False):
+    Print('i', '\na: View all scanned users')
+    Print('i', 'u: View Unique Scanned users')
+    opt = input('\nChoose an option: ')
+    if opt == 'a':
+        all(user)
+    else:
+        unique_users(user)
+    sleep(1)
+    input('c: Clear the log file\nq: Quit\n\n[>] Choose an option: ')
+    if opt == 'c':
+        with open(flname, 'a') as f:
+            f.truncate(0)
+
+def info(profile: object):
     s = '\033[38;2;0;255;0m'
     e = '\033[0m'
     meta = profile._metadata
@@ -110,16 +133,16 @@ def info(profile: object, login: bool = False):
     elif len(data.biography) > 1:
         print(f'Bio: \n{s}{data.biography}{e}')
     
-    if login and profile.followed_by_viewer:
+    if ilogin and profile.followed_by_viewer:
         print(f'You\'re following {s}{data.username}{e}.')
 
-    if login and profile.follows_viewer:
+    if ilogin and profile.follows_viewer:
         print(f'{s}{data.username}{e} follows you.')
 
-    if login and profile.has_requested_viewer:
+    if ilogin and profile.has_requested_viewer:
         print(f'{s}{data.username}{e} requested you.')
 
-    if login and profile.requested_by_viewer:
+    if ilogin and profile.requested_by_viewer:
         print(f'You\'re requesting {s}{data.username}{e}.')
 
     print(f'Total Media: {s}{profile.get_posts().count}{e}')
@@ -145,7 +168,7 @@ def info(profile: object, login: bool = False):
     if data.is_supervised_user:
         print(f'Supervisied by someone: {s}{data.is_supervised_user}{e}')
 
-    if login:
+    if ilogin:
         if data.is_supervised_by_viewer:
             print(f'You\'re Supervising {s}{data.full_name}{e}.')
         if data.is_guardian_of_viewer:
@@ -162,11 +185,11 @@ def info(profile: object, login: bool = False):
     if data.has_guides:
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
 
-    if login and data.mutual_followed_by is not None:
+    if ilogin and data.mutual_followed_by is not None:
         print(f'You\'ve mutual followers with {s}{data.full_name}{e}')
         # for profile:]
 
-    if login:
+    if ilogin:
         ers = followers(profile)
         ees = following(profile)
         print('`````````````````````````````````````````````````\n')
@@ -182,11 +205,10 @@ def info(profile: object, login: bool = False):
 
     askSave = input('\nDo you want to save the info? (Y/N) ')
     if askSave.strip().lower() == 'y':
-        saveInfo(profile, login)
-        saveInfo(profile, login)
+        saveInfo(profile)
 
 
-def saveInfo(profile: object, login: bool = False):
+def saveInfo(profile: object):
     name = f'{profile.username}_{profile.userid}'
     meta = profile._metadata
     data = UserProfile(meta)
@@ -196,7 +218,7 @@ def saveInfo(profile: object, login: bool = False):
 
     with open(flname, 'w', encoding='utf-8') as f:
         time = datetime.now().strftime("%d-%m-%y %H:%M:%S")
-        if login:
+        if ilogin:
             f.write('You\'wre logged in\n')
         f.write(f'Scan at {time}\n')
         f.write(f'User Id: {profile.userid}\n')
@@ -214,10 +236,10 @@ def saveInfo(profile: object, login: bool = False):
         f.write(f'Category: {data.category_name}\n')
         f.write(f'Business Account: {data.is_business_account}\n')
         f.write(f'Business Category: {data.business_category_name}\n')
-        if login:
+        if ilogin:
             if profile.followed_by_viewer:
                 f.write(f'You\'re following {data.username}\n')
-            if profile.is_supervised_user:
+            if data.is_supervised_user:
                 f.write(f'{data.username} is Supervised by Some other user\n')
             if profile.follows_viewer:
                 f.write(f'{data.username} follows you\n')
@@ -237,7 +259,7 @@ def saveInfo(profile: object, login: bool = False):
         f.write(f'Guardian Id: {data.guardian_id}\n')            
 
     
-    if login:
+    if ilogin:
         rdes = os.path.join(os.getcwd(), "temp", name, "data", "followers.txt")
         sdes = os.path.join(os.getcwd(), "temp", name, "data", "followings.txt")
         follower = followers(profile)
@@ -253,7 +275,7 @@ def saveInfo(profile: object, login: bool = False):
     Print('s', f'Saved info for {profile.full_name} to temp/{name}/data/')
 
 
-def download(profile: object, login: bool = False):
+def download(profile: object):
     """
     Downloads profile picture and optionally the latest 5 posts from an Instagram profile.
 
@@ -277,10 +299,11 @@ def download(profile: object, login: bool = False):
 
     print('`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
-    if profile.is_private and not login:
+    if profile.is_private and not ilogin:
         u = profile.get_posts().count
         Print('w', '{0} has {1} posts but its private.\n'.format(profile.username, u))
-        Print('d', 'Can\'t download posts of private accounts.\n')
+        Print('d', 'Can\'t download posts of private accounts.')
+        Print('d', f'Unless you login and Follow {profile.username}\n.')
         input('Press Enter to continue...')
     else:
         print('Do you want to download latest 5 posts of {0}?'.format(
@@ -301,17 +324,21 @@ def download(profile: object, login: bool = False):
             os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok = True)
             Print('i', 'Downloading posts...')
             for count, i in enumerate(posts, 1):
+                flname = i.pcaption
+                rep = """<>?/:"|*"""
+                for x in rep:
+                    flname = flname.replace(x, '_')
                 if i.is_video:
                     postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}-{i.pcaption}.mp4')
+                            os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.mp4')
                     getFile(i.video_url, postdes)
                 else:
                     postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}-{i.pcaption}.jpg')
+                            os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.jpg')
                     getFile(i.url, postdes)
+                Print('s', f'{count}-{flname} Downloaded...')
                 if count == 5:
                     break
-                Print('s', f'{count}-{i.pcaption} Downloaded...')
         else:
             Print('w', f'No posts found for {profile.username}.')
 
