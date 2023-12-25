@@ -51,4 +51,14 @@ pip install -r requirements.txt
 ```
 python main.py
 ```
+If you want to try **experimental** version of `instakit` then please checkout to `develp` branch before running the `main.py` file and do check for updates regularly. like this<br>
+Switching branch
+```
+git checkout develop
+```
+Getting updates
+```
+git pull
+```
+Give me your feedback on this project.<br>
 You're welcome 🤗.

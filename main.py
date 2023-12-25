@@ -12,7 +12,7 @@ opt = input('....../> ')
 if opt.strip()[0] == '1':
     banner()
     Print('i', 'To login enter the credentials')
-    while login:
+    while not login:
         username = input('\nUsername: ')
         try:
             instaloader.Instaloader.interactive_login(username)
