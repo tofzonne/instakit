@@ -106,14 +106,14 @@ def following(profile: object) -> dict:
         followee[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
     return followee
 
-def unique_users(data: dict):
+def unique_users(data):
     unique = {}
     print('\n+---------------------------------------------+')
     print('|{:^45}|'.format('Scanned users (unique)'))
     print('+-----+-------------------------+-------------+')
     print('|{: ^5}|{: ^25}| {: ^11} |'.format('Srno', 'Username', 'Scanned at'))
     print('+-----+-------------------------+-------------+')
-    for line in data:
+    for line in reversed(data):
         user, raw = line.strip().split(', ')
         Raw = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
         time = Raw.strftime('%H:%M %d/%m')
@@ -123,17 +123,17 @@ def unique_users(data: dict):
     for user, time in unique.items():
         count += 1
         print(f'|{count: ^5}|{user: ^25}| {time: ^8} |')
-    print('+-----+-------------------------+-------------+\n')
+    print('+-----+------------------+------+-------------+')
 
-def all(data: dict):
+def all(data):
     print('\n+---------------------------------------------+')
     print('|{:^45}|'.format('Scanned users (all)'))
     print('+-----+-------------------------+-------------+')
     print('|{: ^5}|{: ^25}| {: ^11} |'.format('Srno', 'Username', 'Scanned at'))
     print('+-----+-------------------------+-------------+')
-    for s, i in enumerate(data,1):
+    for s, i in enumerate(reversed(data),1):
         username = i.split(',')[0].strip()
         rawT = i.split(',')[1].strip()
         Time = datetime.strptime(rawT, '%Y-%m-%d %H:%M:%S')
         print(f'|{s: ^5}|{username: ^25}| {Time.strftime("%H:%M %m/%d"): ^8} |')
-    print('+-----+-------------------------+-------------+\n')
+    print('+-----+------------------+------+-------------+')

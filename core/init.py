@@ -16,10 +16,10 @@ ilogin = context.is_logged_in
 def banner(): 
     clear_sc()
     time = datetime.now().strftime("%H:%M:%S")
-    os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
+    flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     try:
-        with open('core\\logs\\info.log', 'r') as f:
-            logs = f.readlines()
+        with open(flname, 'r') as f:
+            logs =  f.readlines()
     except FileNotFoundError:
         logs = []
     today = datetime.now().strftime("%d-%m-%y")
@@ -28,12 +28,10 @@ def banner():
     for i in logs:
         raw = i.split(',')[1].strip()
         Time = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
-        if today == Time.strftime("%d-%m-%y"):
+        day = Time.strftime('%d-%m-%y')
+        if today == day:
             tcount += 1
-    if tcount == 0:
-        srno = ''
-    else:
-        srno = f'Scanned today: {tcount}/{count} users'
+    srno = "" if tcount == 0 else f"Scanned today: {tcount}/{count} users"
     print(f"""
 Time: {time}                    {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
@@ -42,7 +40,6 @@ Time: {time}                    {srno}\033[92m
 ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
 ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝\033[0m""")
-
 
 def clear_sc():
     sys_os = platform.system()
@@ -78,7 +75,6 @@ def Print(message_type: str, message: str):
     else:
         print(f"{color}{symbol}{message}\033[0m")
 
-
 def log(message: str):
     os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
@@ -89,28 +85,30 @@ def log(message: str):
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     try:
-        with open(flname, 'r') as f:
+        with open(flname) as f:
             user =  f.readlines()
     except FileNotFoundError:
-        Print('w', 'You have not scanned any users yet')
+        user = []
+    banner()
+    if len(user) == 0:
+        Print('w', '\nYou have not scanned any users yet')
         Print('i', 'Press enter to continue...\n')
         input()
-        user = []
-        return None
-    banner()
-
-    Print('i', '\na: View all scanned users')
-    Print('i', 'u: View Unique Scanned users')
-    opt = input('\nChoose an option: ')
-    if opt == 'a':
-        all(user)
     else:
-        unique_users(user)
-    sleep(1)
-    input('c: Clear the log file\nq: Quit\n\n[>] Choose an option: ')
-    if opt == 'c':
-        with open(flname, 'a') as f:
-            f.truncate(0)
+        Print('i', '\na: View all scanned users')
+        Print('i', 'u: View Unique Scanned users')
+        opt = input('\nChoose an option: ')
+        if opt == 'a':
+            all(user)
+        else:
+            unique_users(user)
+        # sleep(1)
+        print('|   c: Clear Log{: ^20}q: Quit   |'.format('|'))
+        print('+------------------------+--------------------+\n')
+        opt = input('\n\n[>] Choose an option: ')
+        if opt == 'c':
+            os.remove(flname)
+            print('Log cleared')
 
 def info(profile: object):
     s = '\033[38;2;0;255;0m'
@@ -218,7 +216,6 @@ def info(profile: object):
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
 
-
 def saveInfo(profile: object):
     name = f'{profile.username}_{profile.userid}'
     meta = profile._metadata
@@ -284,7 +281,6 @@ def saveInfo(profile: object):
 
     banner()
     Print('s', f'Saved info for {profile.full_name} to temp/{name}/data/')
-
 
 def download(profile: object):
     """
