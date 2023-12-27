@@ -7,9 +7,8 @@ ilogin = context.is_logged_in
 L = instaloader.Instaloader()
 
 banner()
-print()
-Print('w', '1. Login')
-Print('w', '2. Without Login...\n\n\n')
+Print('w', '\n1. Login to Instagram')
+Print('w', '2. Without Login. Limited features\n\n\n')
 opt = input('....../> ')
 if opt == '1':
     banner()
@@ -19,7 +18,6 @@ if opt == '1':
         try:
             instaloader.Instaloader.interactive_login(username)
             Print('s', 'Logged in successfully')
-            login = True
         except instaloader.exceptions.BadCredentialsException:
             banner()
             Print('w', 'Invalid credentials')
@@ -41,9 +39,12 @@ def main():
             profile = instaloader.Profile.from_username(L.context, tar_user)
             break
         except instaloader.exceptions.ConnectionException as e:
-            print()
-            Print('w', f'{tar_user} not found; "{e}"')
+            Print('w', f'\n{tar_user} not found; "{e}"')
             Print('w', 'Check Spelling and Try again')
+        except instaloader.exceptions.LoginRequiredException as r:
+            Print('w', f'\nRedircted to login page; "{r}"')
+            Print('d', 'Try again')
+            exit()
     info(profile)
     download(profile)
 
@@ -51,6 +52,7 @@ while True:
     banner()
     print('\033[1;33ma: Scan users         b: See Scanned users        c: Exit\033[0m\n\n')
     opt = input('[>] Option: ')
+
     if opt.strip().lower()[0] == 'c':
         exit('\nGoodbye 👋')
 

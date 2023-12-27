@@ -7,7 +7,7 @@ from time import sleep
 import requests
 from instaloader.instaloadercontext import InstaloaderContext
 
-from core.profile import UserProfile, followers, following, all, unique_users
+from core.profile import UserProfile, followers, following, all_users, unique_users
 
 context = InstaloaderContext()
 ilogin = context.is_logged_in
@@ -48,7 +48,6 @@ def clear_sc():
     else:
         os.system('clear')
 
-
 def Print(message_type: str, message: str):
     """
     Prints a message with color and symbol based on its type.
@@ -75,12 +74,12 @@ def Print(message_type: str, message: str):
     else:
         print(f"{color}{symbol}{message}\033[0m")
 
-def log(message: str):
+def log(username: str, userid: int, message: str):
     os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     with open(flname, 'a') as f:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        f.write(f"{message}, {time}\n")
+        f.write(f"{username}, {time}, {userid}\n")
 
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
@@ -99,12 +98,12 @@ def scanned():
         Print('i', 'u: View Unique Scanned users')
         opt = input('\nChoose an option: ')
         if opt == 'a':
-            all(user)
+            banner()
+            all_users(user)
         else:
+            banner()
             unique_users(user)
         # sleep(1)
-        print('|   c: Clear Log{: ^20}q: Quit   |'.format('|'))
-        print('+------------------------+--------------------+\n')
         opt = input('\n\n[>] Choose an option: ')
         if opt == 'c':
             os.remove(flname)
@@ -175,7 +174,7 @@ def info(profile: object):
         print(f'Supervision Enabled: {s}{data.is_supervision_enabled}{e}')
 
     if data.is_supervised_user:
-        print(f'Supervisied by someone: {s}{data.is_supervised_user}{e}')
+        print(f'Supervised  by someone: {s}{data.is_supervised_user}{e}')
 
     if ilogin:
         if data.is_supervised_by_viewer:
@@ -306,48 +305,48 @@ def download(profile: object):
 
     print('`````````````````````````````````````````````````\n')
     Print('s', 'Profile Picture Downloaded.')
+    num_posts = profile.get_posts().count
     if profile.is_private and not ilogin:
-        u = profile.get_posts().count
-        Print('w', '{0} has {1} posts but its private.\n'.format(profile.username, u))
-        Print('d', 'Can\'t download posts of private accounts.')
-        Print('d', f'Unless you login and Follow {profile.username}\n.')
-        input('Press Enter to continue...')
+        Print('w', f"\n{profile.username} has {num_posts} posts, but it's private.")
+        Print('d', "Can't download posts of private accounts.")
+        Print('d', f"Unless you log in and follow {profile.username}\n")
+        input("Press Enter to continue...")
     else:
-        print('Do you want to download latest 5 posts of {0}?'.format(
-                profile.username))
-        # Print('w','Posts may contain videos that may take a time to download. \n')
-        opt = input('\nContinue (Y/N): ')
-        
-        if opt.strip().lower()[0] == 'y':
-            download_post = True
-            Print('i', f'Downloading Latest 5 posts of {profile.username}...')
-            Print('i', f'File path /temp/{name}/Posts')
+        num_posts_to_download = min(num_posts, 5)
+        if num_posts_to_download == 0:
+            Print('w', f'No posts found for {profile.username}.')
+            input("Press Enter to continue...")
+        else:
+            Print('w', f"Do you want to download the latest {num_posts_to_download} posts of {profile.username}?")
+            opt = input("\nContinue (Y/N): ")
+            opt = opt.lower().strip()[0]
+
+            if opt == "y":
+                Print('i', f"Downloading latest {num_posts_to_download} posts of {profile.username}...")
+                Print('i', f"File path: /temp/{name}/Posts")
+                download_post = True
 
     if download_post:
         banner()
-        print()
         posts = profile.get_posts()
-        if posts.count > 0:
-            os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok = True)
-            Print('i', 'Downloading posts...')
-            for count, i in enumerate(posts, 1):
-                flname = i.pcaption
-                rep = """<>?/:"|*"""
-                for x in rep:
-                    flname = flname.replace(x, '_')
-                if i.is_video:
-                    postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.mp4')
-                    getFile(i.video_url, postdes)
-                else:
-                    postdes = os.path.join(
-                            os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.jpg')
-                    getFile(i.url, postdes)
-                Print('s', f'{count}-{flname} Downloaded...')
-                if count == 5:
-                    break
-        else:
-            Print('w', f'No posts found for {profile.username}.')
+        os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'Posts'), exist_ok = True)
+        Print('i', '\nDownloading posts...')
+        for count, i in enumerate(posts, 1):
+            flname = i.pcaption
+            rep = """<>?/:"|*"""
+            for x in rep:
+                flname = flname.replace(x, '_')
+            if i.is_video:
+                postdes = os.path.join(
+                        os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.mp4')
+                getFile(i.video_url, postdes)
+            else:
+                postdes = os.path.join(
+                        os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.jpg')
+                getFile(i.url, postdes)
+            Print('s', f'{count}-{flname}        Downloaded...')
+            if count == num_posts_to_download:
+                break
 
         input('Press Enter to continue...')
 
