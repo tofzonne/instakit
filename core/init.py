@@ -42,6 +42,9 @@ Time: {time}                    {srno}\033[92m
 ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝\033[0m""")
 
 def clear_sc():
+    """
+    Clears the screen.
+    """
     sys_os = platform.system()
     if sys_os == 'Windows':
         os.system('cls')
@@ -74,12 +77,19 @@ def Print(message_type: str, message: str):
     else:
         print(f"{color}{symbol}{message}\033[0m")
 
-def log(username: str, userid: int, message: str):
+def log(username: str, userid: int):
+    """
+    Logs a user's activity to a file named "info.log" in the "core/logs" directory.
+
+    Args:
+        username: The username of the user to log.
+        userid: The user's ID.
+    """
     os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     with open(flname, 'a') as f:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        f.write(f"{username}, {time}, {userid}\n")
+        f.write(f"\n{username}, {time}, {userid}")
 
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
@@ -114,7 +124,7 @@ def info(profile: object):
     e = '\033[0m'
     meta = profile._metadata
     data = UserProfile(meta)
-    log(data.username)
+    log(data.username, data.id)
 
     Print('s', f'Results: scan for {data.full_name} on instagram')
 
@@ -333,7 +343,7 @@ def download(profile: object):
         Print('i', '\nDownloading posts...')
         for count, i in enumerate(posts, 1):
             flname = i.pcaption
-            rep = """<>?/:"|*"""
+            rep = """<>?/:"'|*"""
             for x in rep:
                 flname = flname.replace(x, '_')
             if i.is_video:
@@ -370,3 +380,18 @@ def getFile(url, destination):
     else:
         Print('w',
                     f"Failed to download file. Status code: {response.status_code}")
+
+def elapsedTime(StartingTime) -> str:
+    """
+    Calculates the elapsed time in seconds between the current time and a given starting time.
+
+    Args:
+        StartingTime: A datetime object representing the starting time.
+
+    Returns:
+        A string representing the elapsed time in seconds, rounded to two decimal places.
+    """
+    etime = datetime.now()
+    elapsed_time = etime - StartingTime
+    seconds = int(elapsed_time.total_seconds())
+    return round(seconds, 2)    

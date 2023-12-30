@@ -1,5 +1,6 @@
+from datetime import datetime
 import instaloader
-from core.init import Print, info, banner, download, scanned
+from core.init import Print, info, banner, download, scanned, elapsedTime
 from instaloader.instaloadercontext import InstaloaderContext
 
 context = InstaloaderContext()
@@ -35,6 +36,7 @@ def main():
         banner()
         Print('i', f'Starting Scan on {tar_user}')
         print('`````````````````````````````````````````````````\n')
+        stime = datetime.now()
         try:
             profile = instaloader.Profile.from_username(L.context, tar_user)
             break
@@ -42,11 +44,26 @@ def main():
             Print('w', f'\n{tar_user} not found; "{e}"')
             Print('w', 'Check Spelling and Try again')
         except instaloader.exceptions.LoginRequiredException as r:
-            Print('w', f'\nRedircted to login page; "{r}"')
+            Print('w', f'\nError "{r}"')
             Print('d', 'Try again')
             exit()
+    Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
     info(profile)
     download(profile)
+
+def loadfromfile():
+    banner(type=2)
+    Print('i', 'Enter the file name')
+    file = input('\n/> ')
+    with open(file) as f:
+        user = f.readlines()
+    for i in user:
+        i = i.strip('\n')
+        try:
+            profile = instaloader.Profile.from_username(L.context,i)
+        except:
+            Print('d', 'Username {} not found.'.format(i))
+            continue
 
 while True:
     banner()
