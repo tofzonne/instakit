@@ -41,11 +41,17 @@ def main():
             profile = instaloader.Profile.from_username(L.context, tar_user)
             break
         except instaloader.exceptions.ConnectionException as e:
-            Print('w', f'\n{tar_user} not found; "{e}"')
+            banner()
+            Print('d', f'\nConnection failed during scanning {tar_user}; "{e}"')
+            Print('w', 'Please Try again')
+        except instaloader.exceptions.ProfileNotExistsException as e:
+            banner()
+            Print('d', f'\n{tar_user} not found; "{e}"')
             Print('w', 'Check Spelling and Try again')
         except instaloader.exceptions.LoginRequiredException as r:
+            banner()
             Print('w', f'\nError "{r}"')
-            Print('d', 'Try again')
+            Print('d', 'Try again or log in first')
             exit()
     Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
     info(profile)

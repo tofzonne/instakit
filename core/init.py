@@ -89,7 +89,7 @@ def log(username: str, userid: int):
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     with open(flname, 'a') as f:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        f.write(f"\n{username}, {time}, {userid}")
+        f.write(f"{username}, {time}, {userid}\n")
 
 def scanned():
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
