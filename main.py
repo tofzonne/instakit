@@ -8,21 +8,24 @@ ilogin = context.is_logged_in
 L = instaloader.Instaloader()
 
 banner()
-Print('w', '\n1. Login to Instagram')
-Print('w', '2. Without Login. Limited features\n\n\n')
-opt = input('....../> ')
-if opt == '1':
-    banner()
-    Print('i', 'To login enter the credentials')
-    while not ilogin:
-        username = input('\nUsername: ')
-        try:
-            instaloader.Instaloader.interactive_login(username)
-            Print('s', 'Logged in successfully')
-        except instaloader.exceptions.BadCredentialsException:
-            banner()
-            Print('w', 'Invalid credentials')
-            Print('w', 'Try again')
+if not ilogin:
+    Print('w', '\n1. Login to Instagram')
+    Print('w', '2. Without Login. Limited features\n\n\n')
+    opt = input('....../> ')
+    if opt == '1':
+        banner()
+        Print('i', 'To login enter the credentials')
+        while not ilogin:
+            username = input('\nUsername: ')
+            try:
+                instaloader.Instaloader.interactive_login(username)
+                Print('s', 'Logged in successfully')
+            except instaloader.exceptions.BadCredentialsException:
+                banner()
+                Print('w', 'Invalid credentials')
+                Print('w', 'Try again')
+else:
+    Print(message='\nYou\'re Already logged in :)', message_type='s')
 
 
 def main():
