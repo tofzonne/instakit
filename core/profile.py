@@ -114,7 +114,8 @@ def unique_users(data):
     print('│{: ^5}│{: ^25}│ {: ^11} │'.format('Srno', 'Username', 'Scanned at'))
     print('├─────┼─────────────────────────┼─────────────┤')
     for line in reversed(data):
-        user, raw, _ = line.strip().split(', ')
+        user = line.split(',')[0].strip()
+        raw = line.split(',')[1].strip()
         Raw = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
         time = Raw.strftime('%H:%M %d/%m')
         if user not in unique:
