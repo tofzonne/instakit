@@ -5,16 +5,18 @@ import json
 from time import sleep
 
 import requests
-from instaloader.instaloadercontext import InstaloaderContext
 
 from core.profile import UserProfile, followers, following, all_users, unique_users
+from main import L
 
-context = InstaloaderContext()
-ilogin = context.is_logged_in
+ilogin = L.context.is_logged_in
 
-
-def banner(): 
+def banner() -> None:
+    """
+    Clears the Screen and Prints the banner
+    """
     clear_sc()
+    print('Ilogin', ilogin)
     time = datetime.now().strftime("%H:%M:%S")
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     try:
@@ -32,12 +34,18 @@ def banner():
         if today == day:
             tcount += 1
     srno = "" if tcount == 0 else f"Scanned today: {tcount}/{count} users"
+    if ilogin:
+        bann = 'Logged in as'
+        user = L.test_login()
+    else:
+        bann, user = '', ''
     print(f"""
+
 Time: {time}                    {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
-██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   
-██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   
+██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   {bann}
+██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   {user}
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
 ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝\033[0m""")
 
@@ -51,13 +59,14 @@ def clear_sc():
     else:
         os.system('clear')
 
-def Print(message_type: str, message: str):
+def Print(msg_type: str, msg: str) -> None:
     """
-    Prints a message with color and symbol based on its type.
+    Prints a message to the console with color and symbol formatting based on message type.
 
     Args:
-        message_type: The type of the message (w, i, s, n, d).
-        message: The message string to be printed.
+        msg_type: A string representing the message type, used for formatting.
+        Valid options are "w" (warning), "i" (info), "s" (success), "n" (normal), or "d" (danger).
+        msg: The message to be printed.
     """
     colors = {
             "w": "\033[1;33m",
@@ -68,14 +77,14 @@ def Print(message_type: str, message: str):
     }
     symbols = {"w": "[!] ", "i": "[i] ", "s": "[+] ", "n": "[>] ", "d": "[*] "}
 
-    color = colors.get(message_type.lower(), colors["n"])
-    symbol = symbols.get(message_type.lower(), symbols["n"])
+    color = colors.get(msg_type.lower(), colors["n"])
+    symbol = symbols.get(msg_type.lower(), symbols["n"])
 
-    if '\n' in message[0]:
-        message = message.replace('\n', '')
-        print(f'\n{color}{symbol}{message}\033[0m')
+    if '\n' in msg[0]:
+        msg = msg.replace('\n', '')
+        print(f'\n{color}{symbol}{msg}\033[0m')
     else:
-        print(f"{color}{symbol}{message}\033[0m")
+        print(f"{color}{symbol}{msg}\033[0m")
 
 def log(username: str, userid: int):
     """
@@ -126,7 +135,12 @@ def info(profile: object):
     data = UserProfile(meta)
     log(data.username, data.id)
 
-    Print('s', f'Results: scan for {data.full_name} on instagram')
+    if len(data.full_name) < 1:
+        fname = "['Name']"
+    else:
+        fname = data.full_name[0]
+
+    Print('s', f'Results: scan for {fname} on instagram')
 
     print(f'User Id: {s}{data.id}{e}')
     print(f'Username: {s}{data.username}{e}')
@@ -349,12 +363,14 @@ def download(profile: object):
             if i.is_video:
                 postdes = os.path.join(
                         os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.mp4')
+                ex = '.mp4'
                 getFile(i.video_url, postdes)
             else:
                 postdes = os.path.join(
                         os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.jpg')
+                ex = '.jpg'
                 getFile(i.url, postdes)
-            Print('s', f'{count}-{flname}        Downloaded...')
+            Print('s', f"{count}-{flname}        '({ex})' Downloaded...")
             if count == num_posts_to_download:
                 break
 
@@ -394,4 +410,19 @@ def elapsedTime(StartingTime) -> str:
     etime = datetime.now()
     elapsed_time = etime - StartingTime
     seconds = int(elapsed_time.total_seconds())
-    return round(seconds, 2)    
+    return round(seconds, 2)
+
+def showSessions():
+    """
+    Attempts to retrieve a list of saved Instaloader sessions.
+
+    Returns:
+        A list of session file names if sessions are found, otherwise False.
+    """
+    from instaloader.instaloader import _get_config_dir
+    directory = _get_config_dir()
+    try:
+        files = os.listdir(directory)
+        return files
+    except FileNotFoundError:
+        return False

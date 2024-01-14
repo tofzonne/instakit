@@ -1,32 +1,37 @@
 from datetime import datetime
 import instaloader
-from core.init import Print, info, banner, download, scanned, elapsedTime
-from instaloader.instaloadercontext import InstaloaderContext
+from core.init import *
 
-context = InstaloaderContext()
-ilogin = context.is_logged_in
+
 L = instaloader.Instaloader()
 
-banner()
-if not ilogin:
-    Print('w', '\n1. Login to Instagram')
-    Print('w', '2. Without Login. Limited features\n\n\n')
-    opt = input('....../> ')
+def loadPrevSess(username):
+    try:
+        L.load_session_from_file(username)
+        Print('s', 'Session loaded as %s' % L.test_login())
+        input('Press enter to continue: ')
+    except:
+        Print('d', 'Fail to load Session! Press enter continue without login')
+        input('\n:$ ')
+
+def newLogin():
+    banner()
+    Print('w', '\n1: Login to Instagram')
+    Print('w', '2: Without login - limited features')
+    opt = input('\n:$ ')
     if opt == '1':
         banner()
-        Print('i', 'To login enter the credentials')
-        while not ilogin:
-            username = input('\nUsername: ')
-            try:
-                instaloader.Instaloader.interactive_login(username)
-                Print('s', 'Logged in successfully')
-            except instaloader.exceptions.BadCredentialsException:
-                banner()
-                Print('w', 'Invalid credentials')
-                Print('w', 'Try again')
-else:
-    Print(message='\nYou\'re Already logged in :)', message_type='s')
-
+        Print('i', '\nTo Login enter your credentials below')
+        username = input('\nUsername: ')
+        try:
+            L.interactive_login(username)
+            L.save_session_to_file()
+            Print('s', '\nLogged in successfully')
+            print('Press enter to Continue: ')
+        except instaloader.exceptions.BadCredentialsException:
+            banner()
+            Print('d', 'Invalid credentials')
+            Print('w', 'Try again')    
 
 def main():
     banner()
@@ -34,10 +39,12 @@ def main():
     while True:
         tar_user = input('\nTarget username: ')
         if tar_user == '':
-            Print('w', 'No target username entered')
+            Print('w', 'Username cannot be empty')
             continue
+        if tar_user == '.b':
+            return
         banner()
-        Print('i', f'Starting Scan on {tar_user}')
+        Print('i', f'\nStarting Scan on {tar_user}')
         print('`````````````````````````````````````````````````\n')
         stime = datetime.now()
         try:
@@ -45,45 +52,66 @@ def main():
             break
         except instaloader.exceptions.ConnectionException as e:
             banner()
-            Print('d', f'\nConnection failed during scanning {tar_user}; "{e}"')
+            Print('d', f'\n{e}')
             Print('w', 'Please Try again')
         except instaloader.exceptions.ProfileNotExistsException as e:
             banner()
-            Print('d', f'\n{tar_user} not found; "{e}"')
+            Print('d', f'\n{e}')
             Print('w', 'Check Spelling and Try again')
         except instaloader.exceptions.LoginRequiredException as r:
             banner()
-            Print('w', f'\nError "{r}"')
-            Print('d', 'Try again or log in first')
+            Print('w', f'\n{r}')
+            Print('d', 'Try again or login first')
             exit()
+            
     Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
     info(profile)
     download(profile)
 
-def loadfromfile():
-    banner(type=2)
-    Print('i', 'Enter the file name')
-    file = input('\n/> ')
-    with open(file) as f:
-        user = f.readlines()
-    for i in user:
-        i = i.strip('\n')
-        try:
-            profile = instaloader.Profile.from_username(L.context,i)
-        except:
-            Print('d', 'Username {} not found.'.format(i))
-            continue
 
-while True:
-    banner()
-    print('\033[1;33ma: Scan users         b: See Scanned users        c: Exit\033[0m\n\n')
-    opt = input('[>] Option: ')
-
-    if opt.strip().lower()[0] == 'c':
-        exit('\nGoodbye 👋')
-
-    elif opt.strip().lower()[0] == 'b':
-        scanned()
+if __name__ == '__main__':
+    prevSession = showSessions()
+    if prevSession:
+        banner()
+        Print('s', f'\nYou\'ve {len(prevSession)} session.')
+        print('`````````````````````````````````````````````````\n')
+        for id, session in enumerate(prevSession, 1):
+            print(f'      {id}. {session}')
+        Print('s', '\nEnter the id to load session.')
+        Print('s', 'Or 0 to login with new username.')
+        opt = int(input('\n:$ '))
+        if opt == 0:
+            banner()
+            Print('i', '\nTo Login enter your credentials below')
+            username = input('\nUsername: ')
+            try:
+                L.interactive_login(username)
+                L.save_session_to_file()
+                Print('s', '\nLogged in successfully')
+            
+            except instaloader.exceptions.BadCredentialsException:
+                banner()
+                Print('d', 'Invalid credentials')
+                Print('w', 'Try again')
+        else:
+            sessid = opt - 1
+            sessfile = prevSession[sessid]
+            username = sessfile.replace('session-', '')
+            # print('usernaem', username, len(username))
+            loadPrevSess(username)
 
     else:
-        main()
+        newLogin()
+    while True:
+        banner()
+        print('\033[1;33ma: Scan users         b: See Scanned users        c: Exit\033[0m\n\n')
+        opt = input(':$ ')
+        
+        if opt.strip().lower()[0] == 'c':
+            exit('\nGoodbye 👋')
+        
+        elif opt.strip().lower()[0] == 'b':
+            scanned()
+        
+        else:
+            main()
