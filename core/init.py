@@ -2,7 +2,6 @@ import os
 import platform
 from datetime import datetime
 import json
-from time import sleep
 
 import requests
 
@@ -16,7 +15,7 @@ def banner() -> None:
     Clears the Screen and Prints the banner
     """
     clear_sc()
-    print('Ilogin', ilogin)
+    # print('Ilogin status:', ilogin)
     time = datetime.now().strftime("%H:%M:%S")
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
     try:
@@ -35,12 +34,11 @@ def banner() -> None:
             tcount += 1
     srno = "" if tcount == 0 else f"Scanned today: {tcount}/{count} users"
     if ilogin:
-        bann = 'Logged in as'
-        user = L.test_login()
+        bann = '\033[0mLogged in as:\033[92m'
+        user = f'\033[38;2;0;255;0m{L.test_login()}\033[92m'
     else:
-        bann, user = '', ''
+        bann, user = '',''
     print(f"""
-
 Time: {time}                    {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
@@ -64,9 +62,14 @@ def Print(msg_type: str, msg: str) -> None:
     Prints a message to the console with color and symbol formatting based on message type.
 
     Args:
-        msg_type: A string representing the message type, used for formatting.
-        Valid options are "w" (warning), "i" (info), "s" (success), "n" (normal), or "d" (danger).
-        msg: The message to be printed.
+        `msg_type`: A string representing the message type, used for formatting.
+        Valid options are:
+            `w` -> warning,
+            `i` -> info,
+            `n` -> normal,
+            `d` -> danger, or
+            `s` -> success.
+        `msg`: The message to be printed.
     """
     colors = {
             "w": "\033[1;33m",
@@ -88,11 +91,11 @@ def Print(msg_type: str, msg: str) -> None:
 
 def log(username: str, userid: int):
     """
-    Logs a user's activity to a file named "info.log" in the "core/logs" directory.
+    Logs a user's activity to a file named `info.log` in the `core/logs` directory.
 
     Args:
-        username: The username of the user to log.
-        userid: The user's ID.
+        `username`: The username of the user to log.
+        `userid`: The user's ID.
     """
     os.makedirs(os.path.join(os.getcwd(), "core", "logs"), exist_ok=True)
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
@@ -115,7 +118,7 @@ def scanned():
     else:
         Print('i', '\na: View all scanned users')
         Print('i', 'u: View Unique Scanned users')
-        opt = input('\nChoose an option: ')
+        opt = input('\n:$ ')
         if opt == 'a':
             banner()
             all_users(user)
@@ -123,10 +126,10 @@ def scanned():
             banner()
             unique_users(user)
         # sleep(1)
-        opt = input('\n\n[>] Choose an option: ')
+        opt = input('\n\n:$ ')
         if opt == 'c':
             os.remove(flname)
-            print('Log cleared')
+            Print('s','Log cleared')
 
 def info(profile: object):
     s = '\033[38;2;0;255;0m'
@@ -138,7 +141,7 @@ def info(profile: object):
     if len(data.full_name) < 1:
         fname = "['Name']"
     else:
-        fname = data.full_name[0]
+        fname = data.full_name
 
     Print('s', f'Results: scan for {fname} on instagram')
 
@@ -153,8 +156,7 @@ def info(profile: object):
             print(i.title(), end=', ')
         print(e)
 
-    if data.is_joined_recently:
-        print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
+    print(f'Joined Recently: {s}{data.is_joined_recently}{e}')
 
     print(f'Followers: {s}{data.followers}{e}')
     print(f'Following: {s}{data.followees}{e}')
@@ -177,7 +179,7 @@ def info(profile: object):
     if ilogin and profile.requested_by_viewer:
         print(f'You\'re requesting {s}{data.username}{e}.')
 
-    print(f'Total Media: {s}{profile.get_posts().count}{e}')
+    print(f'Total Media: {s}{profile.mediacount}{e}')
     print(f'Private: {s}{data.is_private}{e}')
     print(f'Verified: {s}{data.is_verified}{e}')
     print(f'Professional: {s}{data.is_professional_account}{e}')
@@ -194,11 +196,9 @@ def info(profile: object):
         if data.business_phone is not None:
             print(f'Business Phone #: {s}{data.business_phone}{e}')
 
-    if data.is_supervision_enabled:
-        print(f'Supervision Enabled: {s}{data.is_supervision_enabled}{e}')
+    print(f'Supervision Enabled: {s}{data.is_supervision_enabled}{e}')
 
-    if data.is_supervised_user:
-        print(f'Supervised  by someone: {s}{data.is_supervised_user}{e}')
+    print(f'Supervised by someone: {s}{data.is_supervised_user}{e}')
 
     if ilogin:
         if data.is_supervised_by_viewer:
@@ -213,13 +213,14 @@ def info(profile: object):
             print(f'You\'ve Restricted {s}{data.full_name}{e}.')
         if profile.has_blocked_viewer:
             print(f'{s}{data.full_name}{e} has blocked you.')
+            # ! Check '.has_blocked_viewer' function on instaloader module
 
     if data.has_guides:
         print(f'{data.full_name} has Guides: {s}{data.has_guides}{e}')
 
     if ilogin and data.mutual_followed_by is not None:
         print(f'You\'ve mutual followers with {s}{data.full_name}{e}')
-        # for profile:]
+        # TODO Write logic to print username's of mutual followers
 
     if ilogin:
         ers = followers(profile)
@@ -227,15 +228,15 @@ def info(profile: object):
         print('`````````````````````````````````````````````````\n')
         print(f'Top ten Followers of {s}{data.username}{e}')
         for x in range(1, 10):
-            print(f'{x}: ', ers[x]['username'], ers[x]['full_name'])
+            print(f'{x}: ', ers[x-1]['username'], ers[x-1]['full_name'])
 
         print('`````````````````````````````````````````````````\n')
         print(f'Top ten Following of {s}{data.username}{e}')
         for x in range(1, 10):
-            print(f'{x}: ', ees[x]['username'], ees[x]['full_name'])
+            print(f'{x}: ', ees[x-1]['username'], ees[x-1]['full_name'])
 
 
-    askSave = input('\nDo you want to save the info? (Y/N) ')
+    askSave = input('\nSave these info? (y/n):$ ')
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
 
@@ -243,15 +244,15 @@ def saveInfo(profile: object):
     name = f'{profile.username}_{profile.userid}'
     meta = profile._metadata
     data = UserProfile(meta)
+    time = datetime.now().strftime("%d-%m-%y %H:%M:%S")
 
     os.makedirs(os.path.join(os.getcwd(), 'temp', name, 'data'), exist_ok=True)
     flname = os.path.join(os.getcwd(), "temp", name, "data", f"{profile.username}.txt")
 
     with open(flname, 'w', encoding='utf-8') as f:
-        time = datetime.now().strftime("%d-%m-%y %H:%M:%S")
         if ilogin:
-            f.write('You\'wre logged in\n')
-        f.write(f'Scan at {time}\n')
+            f.write(f'You\'wre logged in as {L.test_login()}\n')
+        f.write(f'Scan at: {time}\n')
         f.write(f'User Id: {profile.userid}\n')
         f.write(f'Username: {profile.username}\n')
         f.write(f'Full Name: {profile.full_name}\n')
@@ -260,7 +261,7 @@ def saveInfo(profile: object):
         f.write(f'Join recently: {data.is_joined_recently}\n')
         f.write(f'Followers: {data.followers}\n')
         f.write(f'Following: {data.followees}\n')
-        f.write(f'Total Media: {profile.get_posts().count}\n')
+        f.write(f'Total Media: {profile.mediacount}\n')
         f.write(f'Private: {data.is_private}\n')
         f.write(f'Verified: {data.is_verified}\n')
         f.write(f'Professional: {data.is_professional_account}\n')
@@ -297,25 +298,23 @@ def saveInfo(profile: object):
         followee = following(profile)
         with open(rdes, 'w') as f:
             json.dump(follower, f, indent=4)
-            Print('s', 'Followers data')
+            Print('s', 'Followers data Saved.')
         with open(sdes, 'w') as f:
             json.dump(followee, f, indent=4)
-            Print('s', 'Followings data')
+            Print('s', 'Followings data Saved.')
 
     banner()
     Print('s', f'Saved info for {profile.full_name} to temp/{name}/data/')
 
 def download(profile: object):
     """
-    Downloads profile picture and optionally the latest 5 posts from an Instagram profile.
+    Downloads profile picture and optionally the latest `#` of posts from an Instagram profile.
 
     Args:
-        profile: An instaloader.Profile object representing the target Instagram profile.
-        login: A boolean indicating whether to use a logged-in Instaloader session for private accounts.
-                Defaults to False.
+        `profile`: An instaloader.Profile object representing the target Instagram profile.
 
     Raises:
-        LoginRequiredExeption: If the profile is private and login is False.
+        `LoginRequiredExeption`: If the profile is private or You're not logged in.
 
     """
     name = f'{profile.username}_{profile.userid}'
@@ -323,32 +322,31 @@ def download(profile: object):
 
     os.makedirs(os.path.join(os.getcwd(), 'temp', name), exist_ok=True)
     dpdes = os.path.join(os.getcwd(), f'temp/{name}/DP-{profile.username}.jpg')
-    getFile(dpUrl, dpdes)
+    getFile(dpUrl, dpdes) # * Downloads Profile picture of target username
+    print('`````````````````````````````````````````````````\n')
+    Print('s', 'Profile Picture Downloaded.')
 
     download_post = False
 
-    print('`````````````````````````````````````````````````\n')
-    Print('s', 'Profile Picture Downloaded.')
-    num_posts = profile.get_posts().count
-    if profile.is_private and not ilogin:
+    num_posts = profile.mediacount
+    if num_posts <= 0:
+        Print('i', f'\nNo posts found for {profile.username}. Press enter to continue.')
+        input('\n:$ ')
+
+    elif profile.is_private and not ilogin:
         Print('w', f"\n{profile.username} has {num_posts} posts, but it's private.")
         Print('d', "Can't download posts of private accounts.")
         Print('d', f"Unless you log in and follow {profile.username}\n")
-        input("Press Enter to continue...")
-    else:
-        num_posts_to_download = min(num_posts, 5)
-        if num_posts_to_download == 0:
-            Print('w', f'No posts found for {profile.username}.')
-            input("Press Enter to continue...")
-        else:
-            Print('w', f"Do you want to download the latest {num_posts_to_download} posts of {profile.username}?")
-            opt = input("\nContinue (Y/N): ")
-            opt = opt.lower().strip()[0]
+    
+    else:  
+        Print('w', f"Enter # of posts to Download form {profile.username}. Else 0.")
+        Print('d', f'Max #: {min(num_posts, 50)}')
+        opt = input("\n: [int]$ ")
 
-            if opt == "y":
-                Print('i', f"Downloading latest {num_posts_to_download} posts of {profile.username}...")
-                Print('i', f"File path: /temp/{name}/Posts")
-                download_post = True
+        if not opt == "0":
+            Print('i', f"Downloading latest {opt} posts of {profile.username}...")
+            Print('i', f"File path: /temp/{name}/Posts/")
+            download_post = True
 
     if download_post:
         banner()
@@ -361,22 +359,26 @@ def download(profile: object):
             for x in rep:
                 flname = flname.replace(x, '_')
             if i.is_video:
+                url = i.video_url
                 postdes = os.path.join(
                         os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.mp4')
                 ex = '.mp4'
-                getFile(i.video_url, postdes)
             else:
+                url = i.url
                 postdes = os.path.join(
                         os.getcwd(), f'temp/{name}/Posts/{count}-{flname}.jpg')
                 ex = '.jpg'
-                getFile(i.url, postdes)
+
+            getFile(url, postdes) # * Downloads each posts of target usrname till given number
+
             Print('s', f"{count}-{flname}        '({ex})' Downloaded...")
-            if count == num_posts_to_download:
+            if count == int(opt):
                 break
 
-        input('Press Enter to continue...')
+    input('Press Enter to continue...')
+    del_pycache_('../')
 
-def getFile(url, destination):
+def getFile(url: str, destination: str) -> None:
     """
     Downloads a file from a given URL and saves it to the specified destination.
 
@@ -385,7 +387,7 @@ def getFile(url, destination):
         `destination`: The path to save the downloaded file to.
 
     Raises:
-        `RuntimeError`: If the download fails with a non-200 status code.
+        `RuntimeError`: If the download fails with a non-`200` status code.
         
     """
     response = requests.get(url)
@@ -402,17 +404,17 @@ def elapsedTime(StartingTime) -> str:
     Calculates the elapsed time in seconds between the current time and a given starting time.
 
     Args:
-        StartingTime: A datetime object representing the starting time.
+        `StartingTime`: A datetime object representing the starting time.
 
     Returns:
-        A string representing the elapsed time in seconds, rounded to two decimal places.
+        A string representing the elapsed time in `seconds`, rounded to two decimal places.
     """
     etime = datetime.now()
     elapsed_time = etime - StartingTime
     seconds = int(elapsed_time.total_seconds())
     return round(seconds, 2)
 
-def showSessions():
+def showSessions() -> list[str] | bool:
     """
     Attempts to retrieve a list of saved Instaloader sessions.
 
@@ -426,3 +428,26 @@ def showSessions():
         return files
     except FileNotFoundError:
         return False
+
+def del_pycache_(root_dir=".") -> None:
+    """
+    Deletes `__pycache__` directories recursively within a specified root directory,
+    handling potential errors gracefully.
+
+    Args:
+        `root_dir` (`str`, `optional`): The root directory to start the deletion process from.
+            Defaults to the current working directory.
+    """
+
+    for root, dirs, _ in os.walk(root_dir, topdown=False):
+        for dir in dirs:
+            if dir == "__pycache__":
+                cache = os.path.join(root, dir)
+                
+                try:
+                    for i in os.listdir(cache):
+                        flname = os.path.join(cache, i)
+                        os.remove(flname)
+                    os.rmdir(cache)
+                except OSError as e:
+                    print('Error deleting',cache, e)

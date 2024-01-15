@@ -1,3 +1,5 @@
+#!/usr/bin/env/python3
+# Version: 1.1
 from datetime import datetime
 import instaloader
 from core.init import *
@@ -39,9 +41,9 @@ def main():
     while True:
         tar_user = input('\nTarget username: ')
         if tar_user == '':
-            Print('w', 'Username cannot be empty')
+            Print('w', 'Username can\'t be empty')
             continue
-        if tar_user == '.b':
+        if tar_user == '.b': # ! Type `.b` if you accidentally selected Scan users to get out of loop.
             return
         banner()
         Print('i', f'\nStarting Scan on {tar_user}')
@@ -56,13 +58,17 @@ def main():
             Print('w', 'Please Try again')
         except instaloader.exceptions.ProfileNotExistsException as e:
             banner()
-            Print('d', f'\n{e}')
+            Print('d', f'\nUser "{tar_user}" does not Exists: {e}')
             Print('w', 'Check Spelling and Try again')
         except instaloader.exceptions.LoginRequiredException as r:
             banner()
             Print('w', f'\n{r}')
             Print('d', 'Try again or login first')
+            del_pycache_()
             exit()
+        except instaloader.exceptions.QueryReturnedBadRequestException as b:
+            banner()
+            Print('d', f'\n{e}')
             
     Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
     info(profile)
@@ -82,23 +88,30 @@ if __name__ == '__main__':
         opt = int(input('\n:$ '))
         if opt == 0:
             banner()
-            Print('i', '\nTo Login enter your credentials below')
+            Print('i', '\nTo Login enter your credentials below.')
             username = input('\nUsername: ')
             try:
                 L.interactive_login(username)
                 L.save_session_to_file()
                 Print('s', '\nLogged in successfully')
             
-            except instaloader.exceptions.BadCredentialsException:
+            # except instaloader.exceptions.BadCredentialsException: # default
+            except Exception as e: #! test
                 banner()
+                Print('d', e)
                 Print('d', 'Invalid credentials')
                 Print('w', 'Try again')
-        else:
+                input(':\\n ')
+
+        elif opt > 0:
             sessid = opt - 1
             sessfile = prevSession[sessid]
             username = sessfile.replace('session-', '')
             # print('usernaem', username, len(username))
             loadPrevSess(username)
+            
+        else:
+            pass
 
     else:
         newLogin()
@@ -108,6 +121,7 @@ if __name__ == '__main__':
         opt = input(':$ ')
         
         if opt.strip().lower()[0] == 'c':
+            del_pycache_()
             exit('\nGoodbye 👋')
         
         elif opt.strip().lower()[0] == 'b':

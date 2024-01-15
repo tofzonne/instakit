@@ -2,7 +2,7 @@ from datetime import datetime
 
 class UserProfile:
     """
-    Takes '_metadata' from instaloader Profile and returns a UserProfile object.
+    Takes `_metadata` from instaloader Profile and returns a `UserProfile` object.
     """
     def __init__(self, data):
         self.data = data
