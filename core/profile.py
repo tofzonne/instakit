@@ -1,8 +1,8 @@
-
+from datetime import datetime
 
 class UserProfile:
     """
-    Takes '_metadata' from instaloader Profile and returns a UserProfile object.
+    Takes `_metadata` from instaloader Profile and returns a `UserProfile` object.
     """
     def __init__(self, data):
         self.data = data
@@ -105,3 +105,40 @@ def following(profile: object) -> dict:
     for sr, i in enumerate(fobj, 1):
         followee[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
     return followee
+
+def unique_users(data):
+    unique = {}
+    print('\n╭─────────────────────────────────────────────╮')
+    print('│{:^45}│'.format('Scanned users (unique)'))
+    print('├─────┬─────────────────────────┬─────────────┤')
+    print('│{: ^5}│{: ^25}│ {: ^11} │'.format('Srno', 'Username', 'Scanned at'))
+    print('├─────┼─────────────────────────┼─────────────┤')
+    for line in reversed(data):
+        user = line.split(',')[0].strip()
+        raw = line.split(',')[1].strip()
+        Raw = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
+        time = Raw.strftime('%H:%M %d/%m')
+        if user not in unique:
+            unique[user] = time
+    count = 0
+    for user, time in unique.items():
+        count += 1
+        print(f'│{count: ^5}│{user: ^25}│ {time: ^8} │')
+    print('├─────┴──────────────────┬──────┴─────────────┤')
+    print('│   c: Clear Log{: ^20}q: Quit   │'.format('│'))
+    print('╰────────────────────────┴────────────────────╯\n')
+
+def all_users(data):
+    print('\n╭─────────────────────────────────────────────╮')
+    print('│{:^45}│'.format('Scanned users (all)'))
+    print('├─────┬─────────────────────────┬─────────────┤')
+    print('│{: ^5}│{: ^25}│ {: ^11} │'.format('Srno', 'Username', 'Scanned at'))
+    print('├─────┼─────────────────────────┼─────────────┤')
+    for s, i in enumerate(reversed(data),1):
+        username = i.split(',')[0].strip()
+        rawT = i.split(',')[1].strip()
+        Time = datetime.strptime(rawT, '%Y-%m-%d %H:%M:%S')
+        print(f'│{s: ^5}│{username: ^25}│ {Time.strftime("%H:%M %m/%d"): ^8} │')
+    print('├─────┴──────────────────┬──────┴─────────────┤')
+    print('│   c: Clear Log{: ^20}q: Quit   │'.format('│'))
+    print('╰────────────────────────┴────────────────────╯\n')

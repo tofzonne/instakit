@@ -1,8 +1,13 @@
+
+
+
 # INSTAKIT
 
 Instakit is a command-line tool written in Python that utilizes the Instaloader module to extract and display information about Instagram users. It offers a user-friendly interface and a range of features to help you gather data about Instagram accounts.
 
-[![Run on Repl.it](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
+
+[![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
+
 # Features
 
 - **Login Option:** Instakit provides the option to log in to your Instagram account to access additional information and perform certain actions.
@@ -11,7 +16,9 @@ Instakit is a command-line tool written in Python that utilizes the Instaloader 
 
 - **Display Scanned Usernames:** Instakit maintains a log of all scanned usernames, allowing you to review and manage your scanned accounts.
 
-- **Detailed Information:** For each scanned username, Instakit displays a wealth of information, including:
+
+- **Detailed Information:** For each username, Instakit displays a wealth of information, including:
+
   - User ID
   - Username
   - Full name **(if available)**
@@ -44,72 +51,70 @@ Instakit is a command-line tool written in Python that utilizes the Instaloader 
 
 - **Profile Picture Download:** Instakit allows you to download the profile picture of the scanned username.
 
-- **Recent Posts Download:** You can opt to download the five most recent posts from the scanned username's profile.
+- **Recent Posts Download:** You can opt to download upto `50` most recent posts from the scanned username's profile.
+*Or more if you want to.*
 
 - **Clear Logs:** You can clear the log of scanned usernames at any time.
 
 # Tested on
-**Windows** & **Termux.**
+**Linux.** & **Windows**
 # Requirements
 - Python
 - Instaloader
 
 # Installation
 
-To install INSTAKIT, follow these steps:
+To install `Instakit`, follow these steps:
 
 1. Ensure you have Python 3 or higher installed on your system.
-2. Open a terminal window or command prompt.
-3. Clone the INSTAKIT repository using the following command:
+2. Open a terminal or command prompt.
+3. Clone the Instakit repository using the following command:
 
-```
+```console
 git clone https://github.com/tofzonne/instakit.git
 ```
 
 4. Navigate to the Instakit directory:
 
-```
+```console
 cd Instakit
 ```
 
 5. Install the required Python modules using the following command:
 
-```
+```console
 pip install -r requirements.txt
 ```
 
 # Usage
 
-To use Instakit, follow these steps:
+To use **Instakit**, follow these steps:
 
-1. Open a terminal window or command prompt and navigate to the Instakit directory.
+1. Open a terminal window or cmd and navigate to the Instakit directory.
 2. Run the following command to start the tool:
 
-```
+```console
 python main.py
 ```
 
 3. Follow the on-screen instructions to log in to your Instagram account **(optional)** and scan usernames.
 4. Select the desired options from the menu to **view**, **save**, or **download** information about scanned usernames.
 
+# Tips
+*For those already using Instakit.*
+- Uninstall instaloader and reinstall it by running `pip install -r requirements.txt`, or you'll encounter login errors. ***Important**
+
+- If you accidentally selected `a` option from the main screen and **don't want to scan**, you can enter `.b` in place of the `username: ` field to return to the previous menu.
+
+- If you've logged in and tried to run main.py again, the tool will prompt you to select your previous session. Alternatively, if you want to continue without logging in, simply **enter negative values, e.g** `-1`.
+
 # Contributing
 
-Contributions to Instakit are welcome! If you have any suggestions, bug fixes, or new features you'd like to add, please feel free to create a pull request.
+**Contributions to Instakit are welcome!** If you have any suggestions, bug fixes, or new features you'd like to add, please feel free to create a pull request.
 
 # License
 
-Instakit is licensed under the MIT License. <br>
+Instakit is licensed under the **MIT License**.
 
-# Experiments
-
-If you want to try **experimental** version of `instakit` then please checkout to `develop` branch before running the `main.py` file and check for updates regularly. like this<br>
-Switching branch
-```
-git checkout develop
-```
-Getting updates
-```
-git pull
-```
 # Thanks
 You're welcome 🤗.
