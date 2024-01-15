@@ -1,8 +1,10 @@
 
 
+
 # INSTAKIT
 
 Instakit is a command-line tool written in Python that utilizes the Instaloader module to extract and display information about Instagram users. It offers a user-friendly interface and a range of features to help you gather data about Instagram accounts.
+
 
 [![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
 
@@ -14,7 +16,9 @@ Instakit is a command-line tool written in Python that utilizes the Instaloader 
 
 - **Display Scanned Usernames:** Instakit maintains a log of all scanned usernames, allowing you to review and manage your scanned accounts.
 
+
 - **Detailed Information:** For each username, Instakit displays a wealth of information, including:
+
   - User ID
   - Username
   - Full name **(if available)**
