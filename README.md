@@ -5,8 +5,21 @@
 
 Instakit is a command-line tool written in Python that utilizes the Instaloader module to extract and display information about Instagram users. It offers a user-friendly interface and a range of features to help you gather data about Instagram accounts.
 
-
 [![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
+
+---
+
+<!-- <p align="center">
+  <a href="https://github.com/tofzonne/github-readme-stats/graphs/contributors">
+    <img alt="GitHub Contributors" src="https://img.shields.io/github/contributors/tofzonne/instakit" />
+  </a>
+  <a href="https://github.com/tofzonne/instakit/issues">
+    <img alt="Issues" src="https://img.shields.io/github/issues/tofzonne/instakit?color=0088ff" />
+  </a>
+  <a href="https://github.com/tofzonne/instakit/pulls">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/tofzonne/instakit?color=0088ff" />
+  </a>
+</p> -->
 
 # Features
 
