@@ -47,7 +47,7 @@ def main():
             return
         banner()
         Print('i', f'\nStarting Scan on {tar_user}')
-        print('`````````````````````````````````````````````````\n')
+        print('`' * 48, '\n')
         stime = datetime.now()
         try:
             profile = instaloader.Profile.from_username(L.context, tar_user)
@@ -64,13 +64,13 @@ def main():
             banner()
             Print('w', f'\n{r}')
             Print('d', 'Try again or login first')
-            del_pycache_()
             exit()
         except instaloader.exceptions.QueryReturnedBadRequestException as b:
             banner()
             Print('d', f'\n{e}')
             
     Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
+    analyze(profile)
     info(profile)
     download(profile)
 
@@ -107,21 +107,20 @@ if __name__ == '__main__':
             sessid = opt - 1
             sessfile = prevSession[sessid]
             username = sessfile.replace('session-', '')
-            # print('usernaem', username, len(username))
             loadPrevSess(username)
             
         else:
-            pass
+            pass # ! You can enter -1 or less values to skip to next step
 
     else:
         newLogin()
+
     while True:
         banner()
         print('\033[1;33ma: Scan users         b: See Scanned users        c: Exit\033[0m\n\n')
         opt = input(':$ ')
         
         if opt.strip().lower()[0] == 'c':
-            del_pycache_()
             exit('\nGoodbye 👋')
         
         elif opt.strip().lower()[0] == 'b':

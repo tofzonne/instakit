@@ -235,7 +235,6 @@ def info(profile: object):
         for x in range(1, 10):
             print(f'{x}: ', ees[x-1]['username'], ees[x-1]['full_name'])
 
-
     askSave = input('\nSave these info? (y/n):$ ')
     if askSave.strip().lower() == 'y':
         saveInfo(profile)
@@ -376,7 +375,6 @@ def download(profile: object):
                 break
 
     input('Press Enter to continue...')
-    del_pycache_('../')
 
 def getFile(url: str, destination: str) -> None:
     """
@@ -429,25 +427,60 @@ def showSessions() -> list[str] | bool:
     except FileNotFoundError:
         return False
 
-def del_pycache_(root_dir=".") -> None:
-    """
-    Deletes `__pycache__` directories recursively within a specified root directory,
-    handling potential errors gracefully.
+# ===========================================================
+# This function is being removed
+# def del_pycache_(root_dir=".") -> None:
+#     """
+#     Deletes `__pycache__` directories recursively within a specified root directory,
+#     handling potential errors gracefully.
 
-    Args:
-        `root_dir` (`str`, `optional`): The root directory to start the deletion process from.
-            Defaults to the current working directory.
-    """
+#     Args:
+#         `root_dir` (`str`, `optional`): The root directory to start the deletion process from.
+#             Defaults to the current working directory.
+#     """
 
-    for root, dirs, _ in os.walk(root_dir, topdown=False):
-        for dir in dirs:
-            if dir == "__pycache__":
-                cache = os.path.join(root, dir)
+#     for root, dirs, _ in os.walk(root_dir, topdown=False):
+#         for dir in dirs:
+#             if dir == "__pycache__":
+#                 cache = os.path.join(root, dir)
                 
-                try:
-                    for i in os.listdir(cache):
-                        flname = os.path.join(cache, i)
-                        os.remove(flname)
-                    os.rmdir(cache)
-                except OSError as e:
-                    print('Error deleting',cache, e)
+#                 try:
+#                     for i in os.listdir(cache):
+#                         flname = os.path.join(cache, i)
+#                         os.remove(flname)
+#                     os.rmdir(cache)
+#                 except OSError as e:
+#                     print('Error deleting',cache, e)
+    
+def analyze(profile: object):
+    """
+    """
+    # flocount = profile.followers
+    # postcount = profile.mediacount
+    rawposts = profile.get_posts()
+    posts = {}
+    for count, i in enumerate(rawposts, 1):
+        if count == 9: break
+        posts[i.shortcode] = {
+            'likes': i.likes,
+            'comments': i.comments,
+            'caption': i.caption,
+            'hastags': i.caption_hashtags,
+            'date': i.date
+        }
+    # print(flocount,postcount)
+    topcapword = topword(posts)
+    tophashtag = tophash(posts)
+
+def topword(dictionary: dict) -> list:
+    """
+    """
+    cap = [post['caption'] for post_id, post in dictionary.items()]
+    words = []
+    for i in cap:
+        for a in i:
+            if a not in words:
+                words.append(a)
+    return words
+def tophash(dictionary: dict) -> list:
+    ...
