@@ -70,7 +70,9 @@ def main():
             Print('d', f'\n{e}')
             
     Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
-    analyze(profile)
+    topword, tophash = analyze(profile)
+    print('Top Word used\n', topword)
+    print('Top Hashtags used\n', tophash)
     info(profile)
     download(profile)
 

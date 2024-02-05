@@ -428,7 +428,7 @@ def showSessions() -> list[str] | bool:
         return False
 
 # ===========================================================
-# This function is being removed
+# ! This function is being removed
 # def del_pycache_(root_dir=".") -> None:
 #     """
 #     Deletes `__pycache__` directories recursively within a specified root directory,
@@ -469,18 +469,29 @@ def analyze(profile: object):
             'date': i.date
         }
     # print(flocount,postcount)
-    topcapword = topword(posts)
-    tophashtag = tophash(posts)
+    # topcapword = topword(posts)
+    # tophashtag = tophash(posts)
+    return topword(posts), tophash(posts)
 
 def topword(dictionary: dict) -> list:
     """
     """
     cap = [post['caption'] for post_id, post in dictionary.items()]
-    words = []
-    for i in cap:
-        for a in i:
-            if a not in words:
-                words.append(a)
-    return words
+    words = {}
+    for a in range(len(cap)):
+        for i in cap[a].split():
+            words[i] = words.get(i, 0) + 1
+    sort_words = sorted(words.items(), key=lambda x: x[1], reverse=True)
+    return [word for _, word in words.items()][:10]
+
+    
 def tophash(dictionary: dict) -> list:
-    ...
+    """
+    """
+    has = [post['hastags'] for post_id, post in dictionary.items()]
+    words = {}
+    for a in range(len(has)):
+        for i in has[a]:
+            words[i] = words.get(i, 0) + 1
+    sort_words = sorted(words.items(), key=lambda x: x[1], reverse=True)
+    return [word for _, word in words.items()][:10]
