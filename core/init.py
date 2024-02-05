@@ -336,7 +336,8 @@ def download(profile: object):
     elif profile.is_private and not ilogin:
         Print('w', f"\n{profile.username} has {num_posts} posts, but it's private.")
         Print('d', "Can't download posts of private accounts.")
-        Print('d', f"Unless you log in and follow {profile.username}\n")
+        Print('d', f"Unless you log in and follow {profile.username}\nPress enter to continue")
+        input('\n:$ ')
     
     else:  
         Print('w', f"Enter # of posts to Download form {profile.username}. Else 0.")
@@ -375,8 +376,7 @@ def download(profile: object):
             if count == int(opt):
                 break
 
-    input('Press Enter to continue...')
-    del_pycache_('../')
+        input('Press Enter to continue...')
 
 def getFile(url: str, destination: str) -> None:
     """

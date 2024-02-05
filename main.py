@@ -64,7 +64,6 @@ def main():
             banner()
             Print('w', f'\n{r}')
             Print('d', 'Try again or login first')
-            del_pycache_()
             exit()
         except instaloader.exceptions.QueryReturnedBadRequestException as b:
             banner()
@@ -121,7 +120,6 @@ if __name__ == '__main__':
         opt = input(':$ ')
         
         if opt.strip().lower()[0] == 'c':
-            del_pycache_()
             exit('\nGoodbye 👋')
         
         elif opt.strip().lower()[0] == 'b':

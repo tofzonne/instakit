@@ -5,9 +5,22 @@
 
 Instakit is a command-line tool written in Python that utilizes the Instaloader module to extract and display information about Instagram users. It offers a user-friendly interface and a range of features to help you gather data about Instagram accounts.
 
-[![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
+[![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)<p>
+    <a href="https://www.buymeacoffee.com/tofzonne">
+        <img align="left"
+            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+            height="50"
+            width="210"
+            alt="Buy me a Coffe"
+        />
+    </a>
+</p>
+
+
+<br><br>
 
 ---
+
 
 <!-- <p align="center">
   <a href="https://github.com/tofzonne/github-readme-stats/graphs/contributors">
@@ -120,6 +133,19 @@ python main.py
 - If you accidentally selected `a` option from the main screen and **don't want to scan**, you can enter `.b` in place of the `username: ` field to return to the previous menu.
 
 - If you've logged in and tried to run main.py again, the tool will prompt you to select your previous session. Alternatively, if you want to continue without logging in, simply **enter negative values, e.g** `-1`.
+
+# Experiments
+
+If you want to try **beta** version of `instakit` then please checkout to `beta` branch before running the `main.py` file and check for updates regularly. like this
+
+
+**Update your local branch first.**
+```
+git pull
+```
+```
+git checkout beta
+```
 
 # Contributing
 
