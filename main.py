@@ -1,5 +1,5 @@
 #!/usr/bin/env/python3
-# Version: 1.1
+# Version: 1.2.0
 from datetime import datetime
 import instaloader
 from core.init import *
@@ -69,10 +69,8 @@ def main():
             banner()
             Print('d', f'\n{e}')
             
-    Print('i', f'Scan completed in {elapsedTime(stime)} seconds\n')
-    topword, tophash = analyze(profile)
-    print('Top Word used\n', topword)
-    print('Top Hashtags used\n', tophash)
+    # analyze(profile)
+    elapsedTime(stime)
     info(profile)
     download(profile)
 

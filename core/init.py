@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import platform
 from datetime import datetime
 import json
@@ -15,35 +16,31 @@ def banner() -> None:
     Clears the Screen and Prints the banner
     """
     clear_sc()
-    # print('Ilogin status:', ilogin)
-    time = datetime.now().strftime("%H:%M:%S")
+
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
-    try:
-        with open(flname, 'r') as f:
-            logs =  f.readlines()
-    except FileNotFoundError:
-        logs = []
-    today = datetime.now().strftime("%d-%m-%y")
-    count = len(logs)
-    tcount = 0
-    for i in logs:
-        raw = i.split(',')[1].strip()
-        Time = datetime.strptime(raw, '%Y-%m-%d %H:%M:%S')
-        day = Time.strftime('%d-%m-%y')
-        if today == day:
-            tcount += 1
-    srno = "" if tcount == 0 else f"Scanned today: {tcount}/{count} users"
-    if ilogin:
-        bann = '\033[0mLogged in as:\033[92m'
-        user = f'\033[38;2;0;255;0m{L.test_login()}\033[92m'
+
+    logs_path = Path(flname)
+    if logs_path.exists():
+        logs = logs_path.read_text().splitlines()
     else:
-        bann, user = '',''
+        logs = []
+
+    today = now.strftime("%d-%m-%y")
+    tcount = sum(1 for line in logs if datetime.strptime(line.split(',')[1].strip(), '%Y-%m-%d %H:%M:%S').strftime('%d-%m-%y') == today)
+    srno = "" if tcount == 0 else f"Scanned today: {tcount}/{len(logs)} users"
+
+    if ilogin:
+        bann = f"\033[0mLogged in as:\033[92m {L.test_login()}\033[0m"
+    else:
+        bann = ""
     print(f"""
 Time: {time}                    {srno}\033[92m 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   {bann}
-██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║   {user}
+██║██║╚██╗██║╚════██║   ██║   ██╔══██║██╔═██╗ ██║   ██║
 ██║██║ ╚████║███████║   ██║   ██║  ██║██║  ██╗██║   ██║   
 ╚═╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝\033[0m""")
 
@@ -410,7 +407,7 @@ def elapsedTime(StartingTime) -> str:
     etime = datetime.now()
     elapsed_time = etime - StartingTime
     seconds = int(elapsed_time.total_seconds())
-    return round(seconds, 2)
+    Print('i', f'Scan completed in {round(seconds, 2)} seconds\n')
 
 def showSessions() -> list[str] | bool:
     """
@@ -451,16 +448,11 @@ def showSessions() -> list[str] | bool:
 #                     os.rmdir(cache)
 #                 except OSError as e:
 #                     print('Error deleting',cache, e)
-    
-def analyze(profile: object):
-    """
-    """
-    # flocount = profile.followers
-    # postcount = profile.mediacount
-    rawposts = profile.get_posts()
+
+def getPostDict(rawposts) -> dict:
     posts = {}
     for count, i in enumerate(rawposts, 1):
-        if count == 9: break
+        if count == 100: break
         posts[i.shortcode] = {
             'likes': i.likes,
             'comments': i.comments,
@@ -468,22 +460,55 @@ def analyze(profile: object):
             'hastags': i.caption_hashtags,
             'date': i.date
         }
-    # print(flocount,postcount)
-    # topcapword = topword(posts)
-    # tophashtag = tophash(posts)
-    return topword(posts), tophash(posts)
-
-def topword(dictionary: dict) -> list:
+    return posts
+    
+def analyze(profile: object):
     """
+    """
+    rawposts = profile.get_posts()
+    posts = getPostDict(rawposts)
+    topcapword = topword(posts)
+    tophashtag = tophash(posts)
+
+    engag = engagement(profile, posts)
+    popularDay, popularTime = schedule(posts)
+
+    print(f'Engagement: {engag}\n')
+    print('Top cap word:')
+    for word, occr in topcapword.items():
+        print(f'{word}: {occr}')
+    print('\nTop hashtag:')
+    for hash, occr in tophashtag.items():
+        print(f'{hash}: {occr}')
+    print(f'\nPopular day: {popularDay}\n')
+    print(f'Popular time: {popularTime}\n')
+
+def topword(dictionary: dict) -> dict:
+    """
+    Extracts the most common words from the captions in the given dictionary of posts.
+
+    Args:
+        dictionary (dict): A dictionary containing post IDs as keys and post information dictionaries as values,
+            where each post information dictionary contains a 'caption' key.
+
+    Returns:
+        dict: A dictionary containing the most common words found in the captions as keys and their frequencies as values.
+
     """
     cap = [post['caption'] for post_id, post in dictionary.items()]
     words = {}
-    for a in range(len(cap)):
-        for i in cap[a].split():
-            words[i] = words.get(i, 0) + 1
-    sort_words = sorted(words.items(), key=lambda x: x[1], reverse=True)
-    return [word for _, word in words.items()][:10]
-
+    fillerdata = os.path.join(os.getcwd(), 'core', 'filler.txt')
+    with open(fillerdata) as f:
+        filler = f.read().splitlines()
+    for text in cap:
+        if text != None:
+            for word in text.split():
+                sims = """,!@$%^&*()-_=+:;.<>/?`~'"""
+                for x in sims:
+                    word = word.replace(x, '')
+                if '#' not in word and word.lower() not in filler:
+                    words[word] = words.get(word, 0) + 1
+    return dict(sorted(words.items(), key=lambda x: x[1], reverse=True))
     
 def tophash(dictionary: dict) -> list:
     """
@@ -493,5 +518,22 @@ def tophash(dictionary: dict) -> list:
     for a in range(len(has)):
         for i in has[a]:
             words[i] = words.get(i, 0) + 1
-    sort_words = sorted(words.items(), key=lambda x: x[1], reverse=True)
-    return [word for _, word in words.items()][:10]
+    sort_words = dict(sorted(words.items(), key=lambda x: x[1], reverse=True))
+    return sort_words
+
+def engagement(profile, posts_dict):
+    follower_count = profile.followers
+    total_likes = sum(post['likes'] for post_id, post in posts_dict.items())
+    total_comments = sum(post['comments'] for post_id, post in posts_dict.items())
+    total_engagement = total_likes + total_comments
+    engagement_rate = (total_engagement / follower_count) * 100
+    return round(engagement_rate,2)
+
+def schedule(posts_dict):
+    posting_days = [post['date'].strftime('%A') for _, post in posts_dict.items()]
+    posting_times = [post['date'].strftime('%H:%M:%S') for _, post in posts_dict.items()]
+
+    popular_day = max(set(posting_days), key=posting_days.count)
+    popular_time = max(set(posting_times), key=posting_times.count)
+
+    return popular_day, popular_time
