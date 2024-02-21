@@ -1,3 +1,4 @@
+from collections import Counter
 import os
 from pathlib import Path
 import platform
@@ -232,9 +233,14 @@ def info(profile: object):
         for x in range(1, 10):
             print(f'{x}: ', ees[x-1]['username'], ees[x-1]['full_name'])
 
-    askSave = input('\nSave these info? (y/n):$ ')
-    if askSave.strip().lower() == 'y':
+    beta = Data(data, profile.mediacount)
+    if beta:
         saveInfo(profile)
+        analyze(profile)
+    else:
+        askSave = input('\nSave these info? (y/n):$ ')
+        if askSave.strip().lower() == 'y':
+            saveInfo(profile)
 
 def saveInfo(profile: object):
     name = f'{profile.username}_{profile.userid}'
@@ -327,7 +333,7 @@ def download(profile: object):
     num_posts = profile.mediacount
     if num_posts <= 0:
         Print('i', f'\nNo posts found for {profile.username}. Press enter to continue.')
-        input('\n:$ ')
+        # input('\n:$ ')
 
     elif profile.is_private and not ilogin:
         Print('w', f"\n{profile.username} has {num_posts} posts, but it's private.")
@@ -424,31 +430,6 @@ def showSessions() -> list[str] | bool:
     except FileNotFoundError:
         return False
 
-# ===========================================================
-# ! This function is being removed
-# def del_pycache_(root_dir=".") -> None:
-#     """
-#     Deletes `__pycache__` directories recursively within a specified root directory,
-#     handling potential errors gracefully.
-
-#     Args:
-#         `root_dir` (`str`, `optional`): The root directory to start the deletion process from.
-#             Defaults to the current working directory.
-#     """
-
-#     for root, dirs, _ in os.walk(root_dir, topdown=False):
-#         for dir in dirs:
-#             if dir == "__pycache__":
-#                 cache = os.path.join(root, dir)
-                
-#                 try:
-#                     for i in os.listdir(cache):
-#                         flname = os.path.join(cache, i)
-#                         os.remove(flname)
-#                     os.rmdir(cache)
-#                 except OSError as e:
-#                     print('Error deleting',cache, e)
-
 def getPostDict(rawposts) -> dict:
     posts = {}
     for count, i in enumerate(rawposts, 1):
@@ -461,7 +442,57 @@ def getPostDict(rawposts) -> dict:
             'date': i.date
         }
     return posts
+
+def Data(info: object, media: int):
+    folder = os.path.join(os.getcwd(), 'core', 'logs', '.Poeples')
+    os.makedirs(folder, exist_ok = True)
+    quoted_folder_path = f'"{os.path.abspath(folder)}"'
+    os.system(f'attrib +h {quoted_folder_path}')
+    filename = folder + f'/{info.id}.json'
     
+    today = datetime.now().strftime("%Y-%m-%d")
+    okey = False
+    try:
+        with open(filename) as f:
+            database = json.load(f)
+        if len(database) > 2: # * change the thresold if needed
+            okey = True
+    except:
+        database = {}
+    
+    database[today] = {
+        'userId': info.id,
+        'username': info.username,
+        'name': info.full_name,
+        'recently join': info.is_joined_recently,
+        'bio': info.biography,
+        'externalLink': info.external_url,
+        'follower': info.followers,
+        'followee': info.followees,
+        'media': media,
+        'private': info.is_private,
+        'verified': info.is_verified,
+        'professional': {
+            'status': info.is_professional_account,
+            'category': info.category_name},
+        'business': {
+            'status': info.is_business_account,
+            'category': info.business_category_name,
+            'email': info.business_email,
+            'phone': info.business_phone},
+        'pronouns': info.pronouns,
+        'guides': info.has_guides
+    }
+    
+    with open(filename, 'w') as f:
+        json.dump(database, f, indent=2)
+    
+    if okey:
+        Print('i', '\nYou\'ve enough information to generate a detailed report of {}.'.format(info.username))
+        que = input('Do you want to analyze this profile [y/n] :$ ')
+        if que[0].lower() == 'y':
+            return True
+
 def analyze(profile: object):
     """
     """
@@ -470,10 +501,11 @@ def analyze(profile: object):
     topcapword = topword(posts)
     tophashtag = tophash(posts)
 
-    engag = engagement(profile, posts)
+    engag, acti = engagement(profile, posts)
     popularDay, popularTime = schedule(posts)
 
-    print(f'Engagement: {engag}\n')
+    print(f'Engagement: {engag}%\n\nUser Activity: {acti}%\n')
+    print(f'uploads: {profile.mediacount}\n')
     print('Top cap word:')
     for word, occr in topcapword.items():
         print(f'{word}: {occr}')
@@ -485,32 +517,27 @@ def analyze(profile: object):
 
 def topword(dictionary: dict) -> dict:
     """
-    Extracts the most common words from the captions in the given dictionary of posts.
+    Finds the most frequent words in captions, excluding stop words and irrelevant characters.
 
     Args:
-        dictionary (dict): A dictionary containing post IDs as keys and post information dictionaries as values,
-            where each post information dictionary contains a 'caption' key.
+        dictionary: A dictionary containing post IDs and their captions.
 
     Returns:
-        dict: A dictionary containing the most common words found in the captions as keys and their frequencies as values.
-
+        A dictionary containing the most frequent words and their counts, sorted in descending order by count.
     """
-    cap = [post['caption'] for post_id, post in dictionary.items()]
-    words = {}
-    fillerdata = os.path.join(os.getcwd(), 'core', 'filler.txt')
-    with open(fillerdata) as f:
-        filler = f.read().splitlines()
-    for text in cap:
-        if text != None:
-            for word in text.split():
-                sims = """,!@$%^&*()-_=+:;.<>/?`~'"""
-                for x in sims:
-                    word = word.replace(x, '')
-                if '#' not in word and word.lower() not in filler:
-                    words[word] = words.get(word, 0) + 1
-    return dict(sorted(words.items(), key=lambda x: x[1], reverse=True))
-    
-def tophash(dictionary: dict) -> list:
+
+    captions = [post.get('caption', '') for post_id, post in dictionary.items()]
+
+    stop_words = set(open('core/filler.txt').read().splitlines())
+
+    valid_words = Counter(
+        word.lower() for caption in captions if caption != None for word in caption.split()
+        if word.isalnum() and word.lower() not in stop_words and '#' not in word
+    )
+
+    return dict(valid_words.most_common())
+
+def tophash(dictionary: dict) -> dict:
     """
     """
     has = [post['hastags'] for post_id, post in dictionary.items()]
@@ -527,7 +554,10 @@ def engagement(profile, posts_dict):
     total_comments = sum(post['comments'] for post_id, post in posts_dict.items())
     total_engagement = total_likes + total_comments
     engagement_rate = (total_engagement / follower_count) * 100
-    return round(engagement_rate,2)
+
+    activity = (total_comments + total_likes + profile.mediacount) / profile.followers
+
+    return round(engagement_rate,2), round(activity,2)
 
 def schedule(posts_dict):
     posting_days = [post['date'].strftime('%A') for _, post in posts_dict.items()]
