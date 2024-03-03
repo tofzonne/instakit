@@ -5,7 +5,19 @@
 
 Instakit is a command-line tool written in Python that utilizes the Instaloader module to extract and display information about Instagram users. It offers a user-friendly interface and a range of features to help you gather data about Instagram accounts.
 
-[![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)
+[![Run on Repl.it!](https://replit.com/badge/github/tofzonne/instakit)](https://replit.com/@tofzonne/instakit)<p>
+    <a href="https://www.buymeacoffee.com/tofzonne">
+        <img align="left"
+            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+            height="50"
+            width="210"
+            alt="Buy me a Coffe"
+        />
+    </a>
+</p>
+
+
+<br><br>
 
 ---
 
@@ -65,7 +77,7 @@ Instakit is a command-line tool written in Python that utilizes the Instaloader 
 - **Profile Picture Download:** Instakit allows you to download the profile picture of the scanned username.
 
 - **Recent Posts Download:** You can opt to download upto `50` most recent posts from the scanned username's profile.
-*Or more if you want to.*
+***Or more if you want to.***
 
 - **Clear Logs:** You can clear the log of scanned usernames at any time.
 
@@ -115,9 +127,15 @@ python main.py
 
 # Tips
 *For those already using Instakit.*
+
+- **There is now a new option on the main menu. To access it, enter {analyze} in place of any other option.**
+
 - Uninstall instaloader and reinstall it by running `pip install -r requirements.txt`, or you'll encounter login errors. ***Important**
 
-- If you accidentally selected `a` option from the main screen and **don't want to scan**, you can enter `.b` in place of the `username: ` field to return to the previous menu.
+<!-- - If you accidentally selected `a` option from the main screen and **don't want to scan**, you can enter `.b` in place of the `username: ` field to return to the previous menu. -->
+
+- If you type `.b`, you can return to the previous menu or option.
+
 
 - If you've logged in and tried to run main.py again, the tool will prompt you to select your previous session. Alternatively, if you want to continue without logging in, simply **enter negative values, e.g** `-1`.
 

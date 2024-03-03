@@ -2,6 +2,7 @@
 # Version: 1.3.0
 from datetime import datetime
 import instaloader
+from core.beta import ainput, brandnewfuch
 from core.init import *
 
 
@@ -18,19 +19,15 @@ def loadPrevSess(username):
 
 def newLogin():
     banner()
-    Print('w', '\n1: Login to Instagram')
-    Print('w', '2: Without login - limited features')
-    opt = input('\n:$ ')
-    if opt == '1':
-        banner()
-        Print('i', '\nTo Login enter your credentials below')
-        username = input('\nUsername: ')
-        try:
-            L.interactive_login(username)
-            L.save_session_to_file()
-            Print('s', '\nLogged in successfully')
-            print('Press enter to Continue: ')
-        except instaloader.exceptions.BadCredentialsException:
+    Print('i', '\nTo Login enter your credentials below')
+    username = input('\nUsername: ')
+    if username == '.b': return
+    try:
+        L.interactive_login(username)
+        L.save_session_to_file()
+        Print('s', '\nLogged in successfully')
+        print('Press enter to Continue: ')
+    except instaloader.exceptions.BadCredentialsException:
             banner()
             Print('d', 'Invalid credentials')
             Print('w', 'Try again')    
@@ -72,7 +69,6 @@ def main():
     # analyze(profile)
     elapsedTime(stime)
     info(profile)
-    download(profile)
 
 
 if __name__ == '__main__':
@@ -87,21 +83,7 @@ if __name__ == '__main__':
         Print('s', 'Or 0 to login with new username.')
         opt = int(input('\n:$ '))
         if opt == 0:
-            banner()
-            Print('i', '\nTo Login enter your credentials below.')
-            username = input('\nUsername: ')
-            try:
-                L.interactive_login(username)
-                L.save_session_to_file()
-                Print('s', '\nLogged in successfully')
-            
-            # except instaloader.exceptions.BadCredentialsException: # default
-            except Exception as e: #! test
-                banner()
-                Print('d', e)
-                Print('d', 'Invalid credentials')
-                Print('w', 'Try again')
-                input(':\\n ')
+            newLogin()
 
         elif opt > 0:
             sessid = opt - 1
@@ -113,7 +95,12 @@ if __name__ == '__main__':
             pass # ! You can enter -1 or less values to skip to next step
 
     else:
-        newLogin()
+        banner()
+        Print('w', '\n1: Login to Instagram')
+        Print('w', '2: Without login - limited features')
+        opt = input('\n:$ ')
+        if opt == '1':
+            newLogin()
 
     while True:
         banner()
@@ -125,6 +112,11 @@ if __name__ == '__main__':
         
         elif opt.strip().lower()[0] == 'b':
             scanned()
+
+        elif opt.strip() == 'analyze':
+            banner('a')
+            brandnewfuch()
+            # todo: Create a Brand New Function to hand the load
         
         else:
             main()

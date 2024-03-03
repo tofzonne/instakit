@@ -12,10 +12,12 @@ from main import L
 
 ilogin = L.context.is_logged_in
 
-def banner() -> None:
+def banner(mode: str = '') -> None:
     """
     Clears the Screen and Prints the banner
     """
+    asd = {'a': '\033[38;2;255;0;0m'}
+    color = asd.get(mode, '\033[92m')
     clear_sc()
 
     now = datetime.now()
@@ -23,21 +25,16 @@ def banner() -> None:
     flname = os.path.join(os.getcwd(), "core", "logs", "info.log")
 
     logs_path = Path(flname)
-    if logs_path.exists():
-        logs = logs_path.read_text().splitlines()
-    else:
-        logs = []
-
+    logs = logs_path.read_text().splitlines() if logs_path.exists() else []
+    
     today = now.strftime("%d-%m-%y")
     tcount = sum(1 for line in logs if datetime.strptime(line.split(',')[1].strip(), '%Y-%m-%d %H:%M:%S').strftime('%d-%m-%y') == today)
     srno = "" if tcount == 0 else f"Scanned today: {tcount}/{len(logs)} users"
 
-    if ilogin:
-        bann = f"\033[0mLogged in as:\033[92m {L.test_login()}\033[0m"
-    else:
-        bann = ""
+    bann = f"\033[0mLogged in as:\033[92m {L.test_login()}\033[0m" if ilogin else ""
+
     print(f"""
-Time: {time}                    {srno}\033[92m 
+Time: {time}                    {srno}{color} 
 ██╗███╗   ██╗███████╗████████╗ █████╗ ██╗  ██╗██╗████████╗
 ██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║ ██╔╝██║╚══██╔══╝
 ██║██╔██╗ ██║███████╗   ██║   ███████║█████╔╝ ██║   ██║   {bann}
@@ -50,10 +47,7 @@ def clear_sc():
     Clears the screen.
     """
     sys_os = platform.system()
-    if sys_os == 'Windows':
-        os.system('cls')
-    else:
-        os.system('clear')
+    os.system('cls') if sys_os == 'Windows' else os.system('clear')
 
 def Print(msg_type: str, msg: str) -> None:
     """
@@ -241,6 +235,7 @@ def info(profile: object):
         askSave = input('\nSave these info? (y/n):$ ')
         if askSave.strip().lower() == 'y':
             saveInfo(profile)
+        download(profile)
 
 def saveInfo(profile: object):
     name = f'{profile.username}_{profile.userid}'
@@ -496,6 +491,7 @@ def Data(info: object, media: int):
 def analyze(profile: object):
     """
     """
+    banner()
     rawposts = profile.get_posts()
     posts = getPostDict(rawposts)
     topcapword = topword(posts)
@@ -504,7 +500,7 @@ def analyze(profile: object):
     engag, acti = engagement(profile, posts)
     popularDay, popularTime = schedule(posts)
 
-    print(f'Engagement: {engag}%\n\nUser Activity: {acti}%\n')
+    print(f'\n\nEngagement: {engag}%\n\nUser Activity: {acti}%\n')
     print(f'uploads: {profile.mediacount}\n')
     print('Top cap word:')
     for word, occr in topcapword.items():
