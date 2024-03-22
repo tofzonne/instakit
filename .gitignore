@@ -41,6 +41,7 @@ venv.bak/
 # Distribution / packaging
 wheels/
 pip-wheel-metadata/
+.*
 
 
 test.py

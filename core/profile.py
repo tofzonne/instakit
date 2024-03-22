@@ -91,7 +91,7 @@ def followers(profile: object) -> dict:
     Takes a profile object and returns a dictionary of followers.
     """
     follower = {}
-    fobj = profile.get_followers()
+    fobj = profile.get_followers() # type: ignore
     for sr, i in enumerate(fobj, 1):
         follower[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
     return follower
@@ -101,7 +101,7 @@ def following(profile: object) -> dict:
     Takes a profile object and returns a dictionary of followees.
     """
     followee = {}
-    fobj = profile.get_followees()
+    fobj = profile.get_followees() # type: ignore
     for sr, i in enumerate(fobj, 1):
         followee[sr] = {'username': i.username, 'name': i.full_name, 'id': i.id}
     return followee

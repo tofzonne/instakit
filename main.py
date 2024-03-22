@@ -2,8 +2,8 @@
 # Version: 1.3.0
 from datetime import datetime
 import instaloader
-from core.beta import ainput, brandnewfuch
 from core.init import *
+from test import del_pycache_
 
 
 L = instaloader.Instaloader()
@@ -73,6 +73,7 @@ def main():
 
 if __name__ == '__main__':
     prevSession = showSessions()
+    del_pycache_()
     if prevSession:
         banner()
         Print('s', f'\nYou\'ve {len(prevSession)} session.')
@@ -81,12 +82,12 @@ if __name__ == '__main__':
             print(f'      {id}. {session}')
         Print('s', '\nEnter the id to load session.')
         Print('s', 'Or 0 to login with new username.')
-        opt = int(input('\n:$ '))
-        if opt == 0:
+        option = int(input('\n:$ '))
+        if option == 0:
             newLogin()
 
-        elif opt > 0:
-            sessid = opt - 1
+        elif option > 0:
+            sessid = option - 1
             sessfile = prevSession[sessid]
             username = sessfile.replace('session-', '')
             loadPrevSess(username)
@@ -98,14 +99,14 @@ if __name__ == '__main__':
         banner()
         Print('w', '\n1: Login to Instagram')
         Print('w', '2: Without login - limited features')
-        opt = input('\n:$ ')
-        if opt == '1':
+        opts = input('\n:$ ')
+        if opts == '1':
             newLogin()
 
     while True:
         banner()
         print('\033[1;33ma: Scan users         b: See Scanned users        c: Exit\033[0m\n\n')
-        opt = input(':$ ')
+        opt : str = input(':$ ')
         
         if opt.strip().lower()[0] == 'c':
             exit('\nGoodbye 👋')
@@ -114,8 +115,9 @@ if __name__ == '__main__':
             scanned()
 
         elif opt.strip() == 'analyze':
-            banner('a')
-            brandnewfuch()
+            from core.beta import Betamode
+            asdf = Betamode()
+            asdf._showVictims()
             # todo: Create a Brand New Function to hand the load
         
         else:

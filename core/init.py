@@ -410,7 +410,7 @@ def elapsedTime(StartingTime) -> str:
     seconds = int(elapsed_time.total_seconds())
     Print('i', f'Scan completed in {round(seconds, 2)} seconds\n')
 
-def showSessions() -> list[str] | bool:
+def showSessions() -> list[str]:
     """
     Attempts to retrieve a list of saved Instaloader sessions.
 
@@ -423,7 +423,7 @@ def showSessions() -> list[str] | bool:
         files = os.listdir(directory)
         return files
     except FileNotFoundError:
-        return False
+        return []
 
 def getPostDict(rawposts) -> dict:
     posts = {}
@@ -478,6 +478,7 @@ def Data(info: object, media: int):
         'pronouns': info.pronouns,
         'guides': info.has_guides
     }
+    database['username'] = info.username
     
     with open(filename, 'w') as f:
         json.dump(database, f, indent=2)
